@@ -30,6 +30,19 @@ assets/
 Kopfzeile und Fußzeile stehen einmal in `assets/shop.js` und werden auf jeder
 Seite eingesetzt — eine Änderung wirkt überall.
 
+### Wichtig bei jeder Änderung an `assets/`
+
+Die Dateien sind in den drei HTML-Seiten mit einer Versionsnummer eingebunden:
+
+```html
+<link rel="stylesheet" href="assets/style.css?v=2">
+<script src="assets/shop.js?v=2"></script>
+```
+
+Nach jeder Änderung an `style.css` oder `shop.js` diese Zahl in **allen drei**
+Seiten hochzählen. Sonst liefert der Browser die alte Fassung aus dem Cache aus
+und die Kundin sieht die Änderung nicht.
+
 ## Markenfarben
 
 Nach Kundenfeedback: Rosé / Hellrosa mit goldenen Details.
