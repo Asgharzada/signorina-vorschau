@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F9EAEC">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 </head>
 
 <body>
@@ -148,7 +148,7 @@
 
 <div id="site-footer"></div>
 
-<script src="assets/shop.js?v=2"></script>
+<script src="assets/shop.js?v=3"></script>
 <script>
 (function () {
   var product = Shop.get(Shop.param('id')) || Shop.PRODUCTS[0];
@@ -168,12 +168,23 @@
   var icon = Shop.iconOf(product);
   var VIEWS = ['Vorderansicht', 'Rückansicht', 'Detail', 'Getragen'];
 
-  document.getElementById('gallery-main').innerHTML =
-    '<div class="ph" data-ph="Produktfoto — Vorderansicht"><svg><use href="#' + icon + '"/></svg></div>';
+  // Die Bildflächen tragen den Ton der gewählten Farbe, solange Fotos fehlen
+  function currentView() {
+    var pressed = document.querySelector('.thumb[aria-pressed="true"]');
+    return pressed ? pressed.dataset.view : VIEWS[0];
+  }
+
+  function paintGallery() {
+    document.getElementById('gallery-main').innerHTML =
+      Shop.phMarkup(chosenColor, 'Produktfoto — ' + currentView(), icon);
+
+    Array.prototype.forEach.call(document.querySelectorAll('.thumb'), function (b) {
+      b.innerHTML = Shop.phMarkup(chosenColor, '', icon).replace('class="ph', 'class="ph ph-quiet');
+    });
+  }
 
   document.getElementById('thumbs').innerHTML = VIEWS.map(function (v, i) {
-    return '<button class="thumb" type="button" aria-pressed="' + (i === 0) + '" data-view="' + v + '">' +
-             '<div class="ph ph-quiet"><svg><use href="#' + icon + '"/></svg></div></button>';
+    return '<button class="thumb" type="button" aria-pressed="' + (i === 0) + '" data-view="' + v + '"></button>';
   }).join('');
 
   document.getElementById('thumbs').addEventListener('click', function (e) {
@@ -182,8 +193,7 @@
     Array.prototype.forEach.call(this.querySelectorAll('.thumb'), function (b) {
       b.setAttribute('aria-pressed', String(b === btn));
     });
-    document.getElementById('gallery-main').innerHTML =
-      '<div class="ph" data-ph="Produktfoto — ' + btn.dataset.view + '"><svg><use href="#' + icon + '"/></svg></div>';
+    paintGallery();
   });
 
   /* ---------- Kopfangaben ---------- */
@@ -197,12 +207,13 @@
     product.reviews + ' Bewertungen</span>';
 
   /* ---------- Farbe ---------- */
-  var chosenColor = product.colors[0];
+  var chosenColor = Shop.tileColor(product); // dieselbe Farbe wie die Kachel im Raster
   var chosenColorEl = document.getElementById('chosen-color');
   chosenColorEl.textContent = chosenColor;
+  paintGallery(); // erst jetzt, chosenColor steht fest
 
-  document.getElementById('opts-color').innerHTML = product.colors.map(function (c, i) {
-    return '<button class="opt color" type="button" aria-pressed="' + (i === 0) + '" data-color="' + c + '">' +
+  document.getElementById('opts-color').innerHTML = product.colors.map(function (c) {
+    return '<button class="opt color" type="button" aria-pressed="' + (c === chosenColor) + '" data-color="' + c + '">' +
              '<i style="background:' + (Shop.COLORS[c] || '#ccc') + '"></i>' + c + '</button>';
   }).join('');
 
@@ -214,6 +225,7 @@
     Array.prototype.forEach.call(this.querySelectorAll('.opt'), function (b) {
       b.setAttribute('aria-pressed', String(b === btn));
     });
+    paintGallery(); // Bildfläche folgt der gewählten Farbe
   });
 
   /* ---------- Größe ---------- */

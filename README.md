@@ -35,8 +35,8 @@ Seite eingesetzt — eine Änderung wirkt überall.
 Die Dateien sind in den drei HTML-Seiten mit einer Versionsnummer eingebunden:
 
 ```html
-<link rel="stylesheet" href="assets/style.css?v=2">
-<script src="assets/shop.js?v=2"></script>
+<link rel="stylesheet" href="assets/style.css?v=3">
+<script src="assets/shop.js?v=3"></script>
 ```
 
 Nach jeder Änderung an `style.css` oder `shop.js` diese Zahl in **allen drei**

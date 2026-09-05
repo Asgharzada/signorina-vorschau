@@ -1,6 +1,6 @@
 /* =========================================================
    Signorina.collection — Katalogdaten + gemeinsame Bausteine
-   Entwurf v2 — Beispieldaten, bis echte Produkte vorliegen
+   Entwurf v3 — Beispieldaten, bis echte Produkte vorliegen
    ========================================================= */
 (function (global) {
   'use strict';
@@ -60,7 +60,7 @@
   var ONE_SIZE = ['Einheitsgröße'];
 
   /* ---------------------------------------------------------
-     Katalog — 17 Beispielprodukte
+     Katalog — 32 Beispielprodukte
      --------------------------------------------------------- */
   var PRODUCTS = [
     /* ---- Kleider ---- */
@@ -379,6 +379,86 @@
      Hilfsfunktionen
      ========================================================= */
 
+  /* ---------------------------------------------------------
+     Farbrechnen für die Bildflächen
+     Solange keine Fotos da sind, bekommt jede Fläche den Ton
+     des Produkts. Das gibt dem Raster Abwechslung und zeigt
+     der Kundin die echte Warenfarbe.
+     --------------------------------------------------------- */
+  function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    return [
+      parseInt(hex.slice(0, 2), 16),
+      parseInt(hex.slice(2, 4), 16),
+      parseInt(hex.slice(4, 6), 16)
+    ];
+  }
+
+  function rgbToHex(rgb) {
+    return '#' + rgb.map(function (v) {
+      var s = Math.round(Math.max(0, Math.min(255, v))).toString(16);
+      return s.length < 2 ? '0' + s : s;
+    }).join('');
+  }
+
+  function mixWith(hex, target, amount) {
+    var a = hexToRgb(hex), b = hexToRgb(target);
+    return rgbToHex([0, 1, 2].map(function (i) {
+      return a[i] + (b[i] - a[i]) * amount;
+    }));
+  }
+
+  // Relative Helligkeit nach WCAG — entscheidet hell oder dunkel
+  function relLum(hex) {
+    var c = hexToRgb(hex).map(function (v) {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+
+  /* Sehr helle Töne würden als Fläche im weißen Hintergrund verschwinden.
+     Statt sie alle nach Rosé zu ziehen — dann sähen Weiß und Creme gleich
+     aus — bekommt jeder einen eigenen, tragfähigen Ton. */
+  var TILE_OVERRIDE = {
+    'Weiß':  '#E3D8DB',  // weiches Grau mit Rosé-Stich
+    'Creme': '#E2CFB4'   // warmes Elfenbein
+  };
+
+  function tint(colorName) {
+    var base = TILE_OVERRIDE[colorName] || COLORS[colorName] || '#E9C3CB';
+    if (relLum(base) > 0.80) base = mixWith(base, '#E9C3CB', 0.55);
+
+    var top  = mixWith(base, '#FFFFFF', 0.42);
+    var mid  = mixWith(base, '#FFFFFF', 0.12);
+    var low  = mixWith(base, '#6E5A46', 0.22);
+    var dark = relLum(mid) < 0.42;
+
+    return {
+      background: 'linear-gradient(150deg,' + top + ' 0%,' + mid + ' 52%,' + low + ' 100%)',
+      ink: dark ? 'rgba(255,255,255,.66)' : 'rgba(168,132,47,.66)',
+      dark: dark
+    };
+  }
+
+  /* Welche der geführten Farben zeigt die Kachel?
+     Nicht immer die erste — sonst wäre halbe Kollektion rosé und das
+     Raster wieder eintönig. Die Wahl ist stabil je Produkt, damit die
+     Kachel im Raster und die Produktseite dieselbe Farbe zeigen. */
+  function tileColor(product) {
+    var seed = 0;
+    for (var i = 0; i < product.id.length; i++) seed += product.id.charCodeAt(i);
+    return product.colors[seed % product.colors.length];
+  }
+
+  /* Bildfläche mit Produktfarbe */
+  function phMarkup(colorName, label, icon) {
+    var t = tint(colorName);
+    return '<div class="ph' + (t.dark ? ' ph-dark' : '') + '" data-ph="' + label + '"' +
+           ' style="background:' + t.background + '">' +
+           '<svg style="color:' + t.ink + ';opacity:1"><use href="#' + icon + '"/></svg></div>';
+  }
+
   function money(value) {
     return value.toLocaleString('de-DE', {
       style: 'currency', currency: 'EUR',
@@ -449,7 +529,7 @@
     return '' +
       '<a class="card" href="produkt.html?id=' + p.id + '">' +
         '<div class="card-media">' + badge +
-          '<div class="ph" data-ph="Produktfoto"><svg><use href="#' + iconOf(p) + '"/></svg></div>' +
+          phMarkup(tileColor(p), 'Produktfoto', iconOf(p)) +
         '</div>' +
         '<h3>' + p.name + '</h3>' +
         '<p class="price">' + priceHtml(p) + '</p>' +
@@ -600,7 +680,7 @@
 
     var badge = document.createElement('div');
     badge.className = 'draft-badge';
-    badge.textContent = 'Entwurf v2 — Vorschau';
+    badge.textContent = 'Entwurf v3 — Vorschau';
     document.body.appendChild(badge);
 
     // Mobiles Menue
@@ -627,6 +707,9 @@
     money: money,
     param: param,
     iconOf: iconOf,
+    tint: tint,
+    tileColor: tileColor,
+    phMarkup: phMarkup,
     byCategory: byCategory,
     get: get,
     reviewsFor: reviewsFor,

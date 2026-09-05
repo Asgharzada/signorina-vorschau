@@ -152,9 +152,10 @@ p{margin:0}
   position:relative;min-height:clamp(460px,76vh,720px);
   display:grid;place-items:center;text-align:center;overflow:hidden;
   background:
-    radial-gradient(120% 90% at 18% 12%,#FFFFFF 0%,rgba(255,255,255,0) 58%),
-    radial-gradient(90% 80% at 82% 88%,var(--rose-300) 0%,rgba(242,217,222,0) 62%),
-    linear-gradient(160deg,var(--rose-100) 0%,var(--rose-050) 45%,var(--rose-200) 100%);
+    radial-gradient(110% 85% at 16% 10%,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 55%),
+    radial-gradient(85% 75% at 84% 88%,var(--rose-500) 0%,rgba(215,154,168,0) 62%),
+    radial-gradient(70% 60% at 90% 10%,rgba(201,162,74,.3) 0%,rgba(201,162,74,0) 58%),
+    linear-gradient(160deg,var(--rose-200) 0%,var(--rose-100) 42%,var(--rose-300) 100%);
 }
 .hero::after{
   content:"";position:absolute;inset:clamp(14px,3vw,34px);
@@ -184,15 +185,27 @@ p{margin:0}
    ========================================================= */
 .ph{
   position:relative;display:grid;place-items:center;overflow:hidden;
-  background:linear-gradient(150deg,var(--rose-100) 0%,var(--rose-050) 50%,var(--rose-200) 100%);
+  background:linear-gradient(150deg,var(--rose-200) 0%,var(--rose-100) 48%,var(--rose-300) 100%);
 }
-.ph svg{width:44%;max-width:120px;height:auto;color:var(--gold);opacity:.34}
+.ph svg{width:52%;max-width:150px;height:auto;color:var(--gold);opacity:.5}
 .ph::before{
   content:attr(data-ph);position:absolute;bottom:.7rem;left:50%;transform:translateX(-50%);
-  font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-700);
-  background:rgba(255,255,255,.72);padding:.24rem .6rem;white-space:nowrap;
+  font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-700);
+  background:rgba(255,255,255,.78);padding:.24rem .6rem;white-space:nowrap;
 }
 .ph.ph-quiet::before{display:none}
+/* Auf dunklen Flächen dreht sich die Beschriftung um */
+.ph-dark::before{background:rgba(42,35,32,.55);color:var(--rose-200)}
+
+/* Feste Farbvarianten für Flächen ohne Produktbezug
+   (Kategoriekacheln, Instagram, Markenbild) */
+.ph--rose{background:linear-gradient(150deg,#F6DDE3 0%,#EFC9D2 52%,#DFAAB8 100%)}
+.ph--camel{background:linear-gradient(150deg,#F0E2D2 0%,#E3CDB2 52%,#CBAA85 100%)}
+.ph--sage{background:linear-gradient(150deg,#E4EAE0 0%,#CFDAC8 52%,#AFC0A5 100%)}
+.ph--gold{background:linear-gradient(150deg,#F5EAD0 0%,#E7D19A 52%,#C9A24A 100%)}
+.ph--ink{background:linear-gradient(150deg,#6A605A 0%,#433A35 52%,#2A2320 100%)}
+.ph--ink svg{color:#fff;opacity:.42}
+.ph--ink::before{background:rgba(42,35,32,.55);color:var(--rose-200)}
 
 /* =========================================================
    Produktkarte + Karussell
@@ -259,7 +272,7 @@ p{margin:0}
 /* =========================================================
    Markengeschichte / Instagram / Newsletter
    ========================================================= */
-.story{background:var(--rose-050)}
+.story{background:var(--rose-100)}
 .story-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,4.5rem);align-items:center}
 @media(max-width:860px){.story-grid{grid-template-columns:1fr}}
 .story .ph{aspect-ratio:4/5}
