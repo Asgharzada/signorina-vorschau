@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merkliste — Signorina.collection</title>
+<meta name="description" content="Deine gemerkten Lieblingsstücke bei Signorina.collection.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=8">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Brotkrumen">
+      <a href="index.html">Startseite</a>
+      <span class="sep">/</span>
+      <span aria-current="page">Merkliste</span>
+    </nav>
+
+    <div style="text-align:center;margin:1rem 0 2.6rem">
+      <p class="eyebrow">Gemerkt</p>
+      <h1 style="font-size:clamp(1.9rem,4vw,2.8rem);margin-top:.4rem">Deine Merkliste</h1>
+      <hr class="rule">
+      <p style="color:var(--muted)" id="wish-note"></p>
+    </div>
+
+    <div id="wish-root" style="margin-bottom:clamp(3.5rem,7vw,6rem)"></div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
+<script>
+Shop.mountChrome({ active: null });
+
+var root = document.getElementById('wish-root');
+var note = document.getElementById('wish-note');
+
+function render() {
+  var ids = Shop.wishIds();
+  var items = ids.map(Shop.get).filter(Boolean);
+
+  if (!items.length) {
+    note.textContent = '';
+    root.innerHTML =
+      '<div class="empty-state">' +
+        '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.5 12 20 12 20Z"/></svg>' +
+        '<h2>Noch nichts gemerkt</h2>' +
+        '<p>Tippe auf das Herz an einem Artikel, dann landet er hier.</p>' +
+        '<a href="kategorie.html?c=neu" class="btn btn-gold">Kollektion ansehen</a>' +
+      '</div>';
+    return;
+  }
+
+  note.textContent = items.length === 1
+    ? 'Ein Stück gemerkt.'
+    : items.length + ' Stücke gemerkt.';
+
+  root.innerHTML = '<div class="grid-products">' + items.map(Shop.card).join('') + '</div>';
+  Shop.refreshBadges();
+}
+
+// Nach jedem Herz-Klick neu aufbauen, damit entfernte Stücke verschwinden
+document.addEventListener('click', function (e) {
+  if (e.target.closest('[data-wish]')) setTimeout(render, 0);
+});
+
+render();
+</script>
+
+</body>
+</html>

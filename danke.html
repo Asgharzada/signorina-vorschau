@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danke für deine Bestellung — Signorina.collection</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=8">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap section">
+    <div id="danke-root"></div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
+<script>
+Shop.mountChrome({ active: null });
+
+var nr = Shop.param('nr');
+var order = null;
+try {
+  var all = JSON.parse(localStorage.getItem('signorina_orders') || '{}');
+  order = all[nr] || Shop.lastOrder();
+} catch (e) { order = Shop.lastOrder(); }
+
+var root = document.getElementById('danke-root');
+
+if (!order) {
+  root.innerHTML =
+    '<div class="empty-state">' +
+      '<h2>Keine Bestellung gefunden</h2>' +
+      '<p>Vielleicht wurde der Link direkt geöffnet, ohne vorher zu bestellen.</p>' +
+      '<a href="index.html" class="btn btn-gold">Zur Startseite</a>' +
+    '</div>';
+} else {
+  var lines = order.lines.map(function (l) {
+    return '<div class="sum-row"><span>' + l.qty + ' × ' + l.name +
+           '<br><span style="color:var(--muted);font-size:.8rem">' + l.color + ' · ' + l.size +
+           '</span></span><span>' + Shop.money(l.sum) + '</span></div>';
+  }).join('');
+
+  var datum = new Date(order.stamp);
+  var datumTxt = datum.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  root.innerHTML =
+    '<div class="confirm">' +
+      '<div class="seal"><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 7"/></svg></div>' +
+      '<p class="eyebrow">Bestellung eingegangen</p>' +
+      '<h1 style="font-size:clamp(2rem,4vw,3rem);margin-top:.5rem">Danke, ' + order.customer.vorname + '!</h1>' +
+      '<hr class="rule">' +
+      '<p style="color:var(--ink-soft)">Wir haben deine Bestellung vom ' + datumTxt + ' erhalten. ' +
+        'Notiere dir die Bestellnummer — damit kannst du jederzeit den Status prüfen.</p>' +
+      '<p class="order-no">' + order.number + '</p>' +
+
+      '<div class="timeline">' +
+        '<div class="tl-step done"><i>✓</i><div><strong>Bestellung eingegangen</strong>' +
+          '<span>' + datumTxt + '</span></div></div>' +
+        '<div class="tl-step done"><i>✓</i><div><strong>Zahlung bestätigt</strong>' +
+          '<span>' + order.customer.zahlungLabel + '</span></div></div>' +
+        '<div class="tl-step"><i>3</i><div><strong>Wird verpackt</strong>' +
+          '<span>meist innerhalb eines Werktags</span></div></div>' +
+        '<div class="tl-step"><i>4</i><div><strong>Unterwegs zu dir</strong>' +
+          '<span>' + order.customer.versandLabel + '</span></div></div>' +
+      '</div>' +
+
+      '<div class="summary" style="position:static;text-align:left">' +
+        '<h2>Deine Bestellung</h2>' + lines +
+        '<div class="sum-row" style="border-top:1px solid var(--line);margin-top:.6rem;padding-top:.8rem">' +
+          '<span>Zwischensumme</span><span>' + Shop.money(order.subtotal) + '</span></div>' +
+        '<div class="sum-row"><span>Versand</span><span>' +
+          (order.shipping === 0 ? 'kostenlos' : Shop.money(order.shipping)) + '</span></div>' +
+        '<div class="sum-row total"><span>Gesamt</span><span>' + Shop.money(order.total) + '</span></div>' +
+        '<p class="sum-note">inkl. ' + Shop.money(order.vat) + ' MwSt. (19 %)</p>' +
+        '<h2 style="margin-top:1.8rem;font-size:1.1rem">Lieferadresse</h2>' +
+        '<p style="font-size:.9rem;color:var(--ink-soft)">' +
+          order.customer.vorname + ' ' + order.customer.nachname + '<br>' +
+          order.customer.strasse + '<br>' +
+          order.customer.plz + ' ' + order.customer.ort + '<br>' +
+          order.customer.land + '</p>' +
+      '</div>' +
+
+      '<div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:2rem">' +
+        '<a href="bestellstatus.html?nr=' + encodeURIComponent(order.number) +
+          '" class="btn btn-gold">Bestellstatus ansehen</a>' +
+        '<a href="kategorie.html?c=neu" class="btn btn-ghost-light">Weiter einkaufen</a>' +
+      '</div>' +
+    '</div>';
+}
+</script>
+
+</body>
+</html>

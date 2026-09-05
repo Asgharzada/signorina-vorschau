@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deine Bestellung ist unterwegs — Signorina.collection</title>
+</head>
+<!-- Vorlage: Versandbestätigung. Platzhalter {{...}} ersetzen. -->
+<body style="margin:0;padding:0;background:#F9EAEC;font-family:Helvetica,Arial,sans-serif;color:#2A2320;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F9EAEC;padding:28px 12px;">
+<tr><td align="center">
+
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#FFFFFF;">
+
+    <tr><td align="center" style="padding:34px 32px 26px;border-bottom:1px solid #EFE3E5;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;letter-spacing:2px;color:#C9A24A;">Signorina</div>
+      <div style="font-size:9px;letter-spacing:6px;text-transform:uppercase;color:#8B7C78;padding-top:5px;">collection</div>
+    </td></tr>
+
+    <tr><td style="padding:34px 32px 0;">
+      <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:26px;line-height:1.25;">
+        Dein Paket ist unterwegs
+      </h1>
+      <p style="margin:16px 0 0;font-size:15px;line-height:1.65;color:#5A4E4A;">
+        Hallo {{vorname}}, deine Bestellung <strong>{{bestellnummer}}</strong> hat uns verlassen
+        und ist mit {{versanddienst}} zu dir unterwegs.
+      </p>
+    </td></tr>
+
+    <tr><td style="padding:24px 32px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+             style="background:#FDF7F8;border:1px solid #E7D19A;">
+        <tr><td align="center" style="padding:18px;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8B7C78;">Sendungsnummer</div>
+          <div style="font-family:Georgia,serif;font-size:20px;letter-spacing:1px;padding:6px 0 4px;">{{sendungsnummer}}</div>
+          <div style="font-size:12px;color:#8B7C78;">Voraussichtliche Zustellung: {{lieferdatum}}</div>
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <tr><td align="center" style="padding:28px 32px 8px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr><td align="center" style="background:#C9A24A;">
+          <a href="{{tracking_link}}" style="display:inline-block;padding:15px 34px;color:#FFFFFF;
+             text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">
+            Sendung verfolgen
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <tr><td style="padding:30px 32px 0;">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8B7C78;padding-bottom:12px;">Im Paket</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px;">
+        <!-- WIEDERHOLUNG BEGINN -->
+        <tr><td style="padding:11px 0;border-bottom:1px solid #EFE3E5;">
+          <strong style="font-weight:600;">{{artikel_name}}</strong><br>
+          <span style="color:#8B7C78;font-size:13px;">{{artikel_farbe}} &middot; Größe {{artikel_groesse}} &middot; {{artikel_menge}} ×</span>
+        </td></tr>
+        <!-- WIEDERHOLUNG ENDE -->
+      </table>
+    </td></tr>
+
+    <tr><td style="padding:26px 32px 0;font-size:13px;line-height:1.7;color:#5A4E4A;">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8B7C78;padding-bottom:8px;">Lieferadresse</div>
+      {{vorname}} {{nachname}}<br>{{strasse}}<br>{{plz}} {{ort}}<br>{{land}}
+    </td></tr>
+
+    <tr><td style="padding:26px 32px 30px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FDF7F8;">
+        <tr><td style="padding:16px 18px;font-size:12px;line-height:1.65;color:#5A4E4A;">
+          <strong style="color:#2A2320;">Passt etwas nicht?</strong>
+          Kein Problem — du hast 30 Tage Zeit für die Rücksendung, das Etikett liegt bei.
+          Mehr dazu unter <a href="{{ruecksendung_link}}" style="color:#A8842F;">Rückgabe &amp; Umtausch</a>.
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <tr><td align="center" style="padding:24px 32px 32px;background:#2A2320;color:#A99F9B;font-size:11px;line-height:1.8;">
+      <div style="font-family:Georgia,serif;font-size:17px;color:#E7D19A;padding-bottom:8px;">Signorina.collection</div>
+      {{firma_name}} &middot; {{firma_strasse}} &middot; {{firma_plz_ort}}<br>
+      <a href="{{impressum_link}}" style="color:#C8BFBB;">Impressum</a> &middot;
+      <a href="{{agb_link}}" style="color:#C8BFBB;">AGB</a> &middot;
+      <a href="{{datenschutz_link}}" style="color:#C8BFBB;">Datenschutz</a>
+    </td></tr>
+
+  </table>
+
+</td></tr>
+</table>
+
+</body>
+</html>

@@ -385,44 +385,14 @@
      des Produkts. Das gibt dem Raster Abwechslung und zeigt
      der Kundin die echte Warenfarbe.
      --------------------------------------------------------- */
-  function hexToRgb(hex) {
-    hex = hex.replace('#', '');
-    return [
-      parseInt(hex.slice(0, 2), 16),
-      parseInt(hex.slice(2, 4), 16),
-      parseInt(hex.slice(4, 6), 16)
-    ];
-  }
+  var mixWith = function (a, b, t) { return Art.mix(a, b, t); };
+  var relLum  = function (h) { return Art.lum(h); };
 
-  function rgbToHex(rgb) {
-    return '#' + rgb.map(function (v) {
-      var s = Math.round(Math.max(0, Math.min(255, v))).toString(16);
-      return s.length < 2 ? '0' + s : s;
-    }).join('');
-  }
-
-  function mixWith(hex, target, amount) {
-    var a = hexToRgb(hex), b = hexToRgb(target);
-    return rgbToHex([0, 1, 2].map(function (i) {
-      return a[i] + (b[i] - a[i]) * amount;
-    }));
-  }
-
-  // Relative Helligkeit nach WCAG — entscheidet hell oder dunkel
-  function relLum(hex) {
-    var c = hexToRgb(hex).map(function (v) {
-      v /= 255;
-      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    });
-    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-  }
-
-  /* Sehr helle Töne würden als Fläche im weißen Hintergrund verschwinden.
-     Statt sie alle nach Rosé zu ziehen — dann sähen Weiß und Creme gleich
-     aus — bekommt jeder einen eigenen, tragfähigen Ton. */
+  /* Sehr helle Toene wuerden als Flaeche im weissen Hintergrund verschwinden.
+     Weiss und Creme bekommen daher eigene, tragfaehige Toene. */
   var TILE_OVERRIDE = {
-    'Weiß':  '#E3D8DB',  // weiches Grau mit Rosé-Stich
-    'Creme': '#E2CFB4'   // warmes Elfenbein
+    'Weiß':  '#E3D8DB',
+    'Creme': '#E2CFB4'
   };
 
   function tint(colorName) {
@@ -451,12 +421,17 @@
     return product.colors[seed % product.colors.length];
   }
 
-  /* Bildfläche mit Produktfarbe */
-  function phMarkup(colorName, label, icon) {
+  /* Bildfläche: Illustration in der Warenfarbe */
+  function phMarkup(colorName, label, iconIgnored, product, viewSuffix) {
     var t = tint(colorName);
-    return '<div class="ph' + (t.dark ? ' ph-dark' : '') + '" data-ph="' + label + '"' +
-           ' style="background:' + t.background + '">' +
-           '<svg style="color:' + t.ink + ';opacity:1"><use href="#' + icon + '"/></svg></div>';
+    if (product && global.Art) {
+      return '<div class="ph ph-art' + (t.dark ? ' ph-dark' : '') + '">' +
+             Art.forProduct(product, colorName, COLORS[colorName] || '#E9C3CB', viewSuffix) +
+             '</div>';
+    }
+    // Rückfall für Flächen ohne Produktbezug
+    return '<div class="ph' + (t.dark ? ' ph-dark' : '') + '" data-ph="' + (label || '') + '"' +
+           ' style="background:' + t.background + '"></div>';
   }
 
   function money(value) {
@@ -529,7 +504,11 @@
     return '' +
       '<a class="card" href="produkt.html?id=' + p.id + '">' +
         '<div class="card-media">' + badge +
-          phMarkup(tileColor(p), 'Produktfoto', iconOf(p)) +
+          phMarkup(tileColor(p), '', null, p) +
+          '<button class="wish-btn" type="button" data-wish="' + p.id + '"' +
+            ' aria-label="Zur Merkliste hinzufügen">' +
+            '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.5 12 20 12 20Z"/></svg>' +
+          '</button>' +
         '</div>' +
         '<h3>' + p.name + '</h3>' +
         '<p class="price">' + priceHtml(p) + '</p>' +
@@ -540,19 +519,184 @@
   /* =========================================================
      Warenkorb — nur Zaehler, reicht fuer die Vorschau
      ========================================================= */
-  var CART_KEY = 'signorina_cart_count';
+  var CART_KEY  = 'signorina_cart';
+  var WISH_KEY  = 'signorina_wish';
+  var ORDER_KEY = 'signorina_orders';
+  var LAST_KEY  = 'signorina_last_order';
+
+  var FREE_SHIPPING_FROM = 49;
+  var SHIPPING_FLAT      = 4.95;
+
+  function read(key, fallback) {
+    try {
+      var raw = global.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function write(key, value) {
+    try { global.localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+
+  /* ---------------- Warenkorb ---------------- */
+  function lineKey(id, color, size) { return id + '|' + color + '|' + size; }
+
+  function cartItems() {
+    return read(CART_KEY, []).filter(function (l) { return get(l.id); });
+  }
 
   function cartCount() {
-    try { return parseInt(global.localStorage.getItem(CART_KEY) || '0', 10) || 0; }
-    catch (e) { return 0; }
+    return cartItems().reduce(function (n, l) { return n + l.qty; }, 0);
   }
-  function setCartCount(n) {
-    try { global.localStorage.setItem(CART_KEY, String(n)); } catch (e) {}
-    var el = document.querySelector('.cart-count');
-    if (el) el.textContent = n;
+
+  function addToCart(product, color, size, qty) {
+    var items = cartItems();
+    var key = lineKey(product.id, color, size);
+    var found = null;
+    for (var i = 0; i < items.length; i++) {
+      if (lineKey(items[i].id, items[i].color, items[i].size) === key) { found = items[i]; break; }
+    }
+    if (found) found.qty = Math.min(10, found.qty + (qty || 1));
+    else items.push({ id: product.id, color: color, size: size, qty: qty || 1 });
+    write(CART_KEY, items);
+    refreshBadges();
   }
-  function addToCart(qty) {
-    setCartCount(cartCount() + (qty || 1));
+
+  function setQty(key, qty) {
+    var items = cartItems().map(function (l) {
+      if (lineKey(l.id, l.color, l.size) === key) l.qty = Math.max(1, Math.min(10, qty));
+      return l;
+    });
+    write(CART_KEY, items);
+    refreshBadges();
+  }
+
+  function removeLine(key) {
+    write(CART_KEY, cartItems().filter(function (l) {
+      return lineKey(l.id, l.color, l.size) !== key;
+    }));
+    refreshBadges();
+  }
+
+  function clearCart() { write(CART_KEY, []); refreshBadges(); }
+
+  /* Rechnung — eine Stelle, damit Warenkorb, Kasse und
+     Bestätigung nie unterschiedliche Summen zeigen */
+  function totals(items, extraShipping) {
+    items = items || cartItems();
+    extraShipping = Number(extraShipping || 0);
+    var lines = items.map(function (l) {
+      var p = get(l.id);
+      return { line: l, product: p, sum: p.price * l.qty };
+    });
+    var subtotal = lines.reduce(function (n, x) { return n + x.sum; }, 0);
+    var base     = (subtotal === 0 || subtotal >= FREE_SHIPPING_FROM) ? 0 : SHIPPING_FLAT;
+    var shipping = subtotal === 0 ? 0 : base + extraShipping;
+    var total    = subtotal + shipping;
+    // Deutschland: Bruttopreise, 19 % sind im Preis enthalten
+    var vat      = total - (total / 1.19);
+    return {
+      lines: lines, subtotal: subtotal, shipping: shipping,
+      total: total, vat: vat,
+      missingForFree: Math.max(0, FREE_SHIPPING_FROM - subtotal)
+    };
+  }
+
+  /* ---------------- Merkliste ---------------- */
+  function wishIds() {
+    return read(WISH_KEY, []).filter(function (id) { return get(id); });
+  }
+  function inWish(id) { return wishIds().indexOf(id) !== -1; }
+  function toggleWish(id) {
+    var ids = wishIds(), i = ids.indexOf(id);
+    if (i === -1) ids.push(id); else ids.splice(i, 1);
+    write(WISH_KEY, ids);
+    refreshBadges();
+    return i === -1;
+  }
+
+  /* ---------------- Bestellungen ---------------- */
+  function orderNumber(seedNum) {
+    var abc = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    var n = seedNum >>> 0, out = '';
+    for (var i = 0; i < 8; i++) { out += abc[n % abc.length]; n = Math.floor(n / abc.length) + 7919 * (i + 1); }
+    return 'SIG-' + out;
+  }
+
+  function placeOrder(customer) {
+    var t = totals(null, customer.versandExtra);
+    if (!t.lines.length) return null;
+    var seed = Art.seedOf(JSON.stringify(t.lines.map(function (x) {
+      return x.line.id + x.line.size + x.line.qty;
+    })) + customer.email + customer.stamp);
+
+    var order = {
+      number: orderNumber(seed),
+      stamp: customer.stamp,
+      email: customer.email,
+      customer: customer,
+      lines: t.lines.map(function (x) {
+        return {
+          id: x.line.id, name: x.product.name, color: x.line.color,
+          size: x.line.size, qty: x.line.qty, price: x.product.price, sum: x.sum
+        };
+      }),
+      subtotal: t.subtotal, shipping: t.shipping, total: t.total, vat: t.vat,
+      state: 'BEZAHLT'
+    };
+
+    var all = read(ORDER_KEY, {});
+    all[order.number] = order;
+    write(ORDER_KEY, all);
+    write(LAST_KEY, order.number);
+    clearCart();
+    return order;
+  }
+
+  function findOrder(number, email) {
+    var all = read(ORDER_KEY, {});
+    var o = all[String(number || '').trim().toUpperCase()];
+    if (!o) return null;
+    if (String(email || '').trim().toLowerCase() !== String(o.email).toLowerCase()) return null;
+    return o;
+  }
+
+  function lastOrder() {
+    var all = read(ORDER_KEY, {});
+    return all[read(LAST_KEY, '')] || null;
+  }
+
+  /* ---------------- Suche ---------------- */
+  function search(query) {
+    var q = String(query || '').trim().toLowerCase();
+    if (q.length < 2) return [];
+    var words = q.split(/\s+/);
+    return PRODUCTS.map(function (p) {
+      var hay = (p.name + ' ' + p.material + ' ' + p.desc + ' ' +
+                 p.colors.join(' ') + ' ' + CATEGORIES[p.cat].title).toLowerCase();
+      var score = 0;
+      words.forEach(function (w) {
+        if (p.name.toLowerCase().indexOf(w) !== -1) score += 3;
+        else if (hay.indexOf(w) !== -1) score += 1;
+      });
+      return { p: p, score: score, all: words.every(function (w) { return hay.indexOf(w) !== -1; }) };
+    }).filter(function (x) { return x.all && x.score > 0; })
+      .sort(function (a, b) { return b.score - a.score; })
+      .map(function (x) { return x.p; });
+  }
+
+  /* ---------------- Anzeige ---------------- */
+  function refreshBadges() {
+    var c = cartCount(), w = wishIds().length;
+    Array.prototype.forEach.call(document.querySelectorAll('.cart-count'), function (el) {
+      el.textContent = c; el.hidden = c === 0;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.wish-count'), function (el) {
+      el.textContent = w; el.hidden = w === 0;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-wish]'), function (el) {
+      el.classList.toggle('on', inWish(el.dataset.wish));
+    });
   }
 
   function toast(message) {
@@ -560,15 +704,15 @@
     if (!el) {
       el = document.createElement('div');
       el.className = 'toast';
+      el.setAttribute('role', 'status');
       document.body.appendChild(el);
     }
     el.textContent = message;
-    // Neustart der Animation erzwingen
     el.classList.remove('show');
     void el.offsetWidth;
     el.classList.add('show');
     clearTimeout(el._t);
-    el._t = setTimeout(function () { el.classList.remove('show'); }, 2600);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 2800);
   }
 
   /* =========================================================
@@ -620,10 +764,12 @@
         '<a href="index.html" class="brand" aria-label="Signorina.collection — Startseite">' +
           '<span class="mark">Signorina</span><span class="sub">collection</span></a>' +
         '<div class="header-actions">' +
-          '<button class="icon-btn" aria-label="Suchen"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>' +
-          '<button class="icon-btn" aria-label="Mein Konto"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button>' +
-          '<button class="icon-btn" aria-label="Warenkorb"><svg viewBox="0 0 24 24"><path d="M6 7h12l1.4 13H4.6L6 7Z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/></svg>' +
-            '<span class="cart-count">0</span></button>' +
+          '<button class="icon-btn" id="search-open" aria-label="Suchen"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>' +
+          '<a class="icon-btn" href="bestellstatus.html" aria-label="Bestellstatus"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg></a>' +
+          '<a class="icon-btn" href="merkliste.html" aria-label="Merkliste"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.5 12 20 12 20Z"/></svg>' +
+            '<span class="wish-count" hidden>0</span></a>' +
+          '<a class="icon-btn" href="warenkorb.html" aria-label="Warenkorb"><svg viewBox="0 0 24 24"><path d="M6 7h12l1.4 13H4.6L6 7Z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/></svg>' +
+            '<span class="cart-count" hidden>0</span></a>' +
         '</div>' +
       '</div></header>';
   }
@@ -645,18 +791,19 @@
             '<li><a href="kategorie.html?c=sale">Sale</a></li>' +
           '</ul></div>' +
           '<div class="foot-col"><h4>Service</h4><ul>' +
-            '<li><a href="#">Versand &amp; Lieferung</a></li>' +
-            '<li><a href="#">Rückgabe &amp; Umtausch</a></li>' +
-            '<li><a href="#">Größentabelle</a></li>' +
-            '<li><a href="#">Zahlungsarten</a></li>' +
-            '<li><a href="#">Kontakt</a></li>' +
+            '<li><a href="service.html?p=versand">Versand &amp; Lieferung</a></li>' +
+            '<li><a href="service.html?p=ruecksendung">Rückgabe &amp; Umtausch</a></li>' +
+            '<li><a href="service.html?p=groessen">Größentabelle</a></li>' +
+            '<li><a href="service.html?p=zahlung">Zahlungsarten</a></li>' +
+            '<li><a href="service.html?p=kontakt">Kontakt</a></li>' +
+            '<li><a href="bestellstatus.html">Bestellstatus</a></li>' +
           '</ul></div>' +
           '<div class="foot-col"><h4>Rechtliches</h4><ul>' +
-            '<li><a href="#">Impressum</a></li>' +
-            '<li><a href="#">AGB</a></li>' +
-            '<li><a href="#">Widerrufsbelehrung</a></li>' +
-            '<li><a href="#">Datenschutzerklärung</a></li>' +
-            '<li><a href="#">Cookie-Einstellungen</a></li>' +
+            '<li><a href="service.html?p=impressum">Impressum</a></li>' +
+            '<li><a href="service.html?p=agb">AGB</a></li>' +
+            '<li><a href="service.html?p=widerruf">Widerrufsbelehrung</a></li>' +
+            '<li><a href="service.html?p=datenschutz">Datenschutzerklärung</a></li>' +
+            '<li><a href="#" data-cookie-open>Cookie-Einstellungen</a></li>' +
           '</ul></div>' +
         '</div>' +
         '<div class="foot-bottom">' +
@@ -694,8 +841,126 @@
       });
     }
 
-    setCartCount(cartCount());
+    mountSearch();
+    mountCookieBanner();
+
+    // Merkliste per Klick auf das Herz in der Produktkarte
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-wish]');
+      if (!btn) return;
+      e.preventDefault();
+      var added = toggleWish(btn.dataset.wish);
+      var prod = get(btn.dataset.wish);
+      toast(added
+        ? prod.name + ' zur Merkliste hinzugefügt'
+        : prod.name + ' von der Merkliste entfernt');
+    });
+
+    // Cookie-Einstellungen erneut öffnen
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-cookie-open]')) {
+        e.preventDefault();
+        try { global.localStorage.removeItem('signorina_cookies'); } catch (err) {}
+        mountCookieBanner();
+      }
+    });
+
+    refreshBadges();
   }
+
+  /* ---------------------------------------------------------
+     Suche als Overlay — von jeder Seite aus erreichbar
+     --------------------------------------------------------- */
+  function mountSearch() {
+    var box = document.createElement('div');
+    box.className = 'search-overlay';
+    box.hidden = true;
+    box.innerHTML =
+      '<div class="search-panel" role="dialog" aria-modal="true" aria-label="Suche">' +
+        '<form class="search-form" role="search">' +
+          '<svg viewBox="0 0 24 24" class="search-ico"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>' +
+          '<input type="search" id="search-input" placeholder="Wonach suchst du?" aria-label="Suchbegriff" autocomplete="off">' +
+          '<button type="button" class="search-close" aria-label="Suche schließen">&times;</button>' +
+        '</form>' +
+        '<div class="search-results" id="search-results">' +
+          '<p class="search-hint">Zum Beispiel: Kleid, Musselin, Rosé, Blazer</p>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(box);
+
+    var input = box.querySelector('#search-input');
+    var out   = box.querySelector('#search-results');
+
+    function open() {
+      box.hidden = false;
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () { input.focus(); }, 30);
+    }
+    function close() {
+      box.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    var openBtn = document.getElementById('search-open');
+    if (openBtn) openBtn.addEventListener('click', open);
+    box.querySelector('.search-close').addEventListener('click', close);
+    box.addEventListener('click', function (e) { if (e.target === box) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !box.hidden) close();
+    });
+    box.querySelector('.search-form').addEventListener('submit', function (e) { e.preventDefault(); });
+
+    input.addEventListener('input', function () {
+      var q = input.value;
+      if (q.trim().length < 2) {
+        out.innerHTML = '<p class="search-hint">Zum Beispiel: Kleid, Musselin, Rosé, Blazer</p>';
+        return;
+      }
+      var hits = search(q);
+      out.innerHTML = hits.length
+        ? '<p class="search-count">' + hits.length + ' Treffer</p>' +
+          '<div class="grid-products">' + hits.slice(0, 8).map(card).join('') + '</div>'
+        : '<p class="search-hint">Nichts gefunden für &bdquo;' + q.replace(/</g, '&lt;') + '&ldquo;.<br>' +
+          'Versuch es mit einem kürzeren Wort.</p>';
+      refreshBadges();
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Cookie-Hinweis — Ablehnen ist genauso leicht wie Annehmen
+     --------------------------------------------------------- */
+  function mountCookieBanner() {
+    if (read('signorina_cookies', null)) return;
+    var old = document.querySelector('.cookie-bar');
+    if (old) old.remove();
+
+    var bar = document.createElement('div');
+    bar.className = 'cookie-bar';
+    bar.innerHTML =
+      '<div class="cookie-inner">' +
+        '<p><strong>Cookies</strong> — wir nutzen nur, was der Shop zum Funktionieren braucht. ' +
+        'Statistik und Marketing nur mit deiner Zustimmung. ' +
+        '<a href="service.html?p=datenschutz">Datenschutzerklärung</a></p>' +
+        '<div class="cookie-actions">' +
+          '<button class="btn btn-ghost-light btn-sm" data-cookie="essenziell">Nur notwendige</button>' +
+          '<button class="btn btn-gold btn-sm" data-cookie="alle">Alle akzeptieren</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(bar);
+    requestAnimationFrame(function () { bar.classList.add('show'); });
+
+    bar.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cookie]');
+      if (!b) return;
+      write('signorina_cookies', { choice: b.dataset.cookie });
+      bar.classList.remove('show');
+      setTimeout(function () { bar.remove(); }, 300);
+      toast(b.dataset.cookie === 'alle'
+        ? 'Danke — alle Cookies erlaubt.'
+        : 'Gespeichert — nur notwendige Cookies.');
+    });
+  }
+
 
   /* =========================================================
      Oeffentliche Schnittstelle
@@ -718,7 +983,23 @@
     priceHtml: priceHtml,
     card: card,
     addToCart: addToCart,
+    cartItems: cartItems,
     cartCount: cartCount,
+    lineKey: lineKey,
+    setQty: setQty,
+    removeLine: removeLine,
+    clearCart: clearCart,
+    totals: totals,
+    wishIds: wishIds,
+    inWish: inWish,
+    toggleWish: toggleWish,
+    placeOrder: placeOrder,
+    findOrder: findOrder,
+    lastOrder: lastOrder,
+    search: search,
+    refreshBadges: refreshBadges,
+    FREE_SHIPPING_FROM: FREE_SHIPPING_FROM,
+    SHIPPING_FLAT: SHIPPING_FLAT,
     toast: toast,
     mountChrome: mountChrome
   };

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service — Signorina.collection</title>
+<meta name="description" content="Versand, Rückgabe, Größentabelle, Zahlungsarten, Kontakt und Rechtliches bei Signorina.collection.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=8">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Brotkrumen">
+      <a href="index.html">Startseite</a>
+      <span class="sep">/</span>
+      <span aria-current="page" id="crumb">Service</span>
+    </nav>
+
+    <div class="doc-layout" style="margin:1rem 0 clamp(3.5rem,7vw,6rem)">
+      <nav class="doc-nav" id="doc-nav" aria-label="Serviceseiten"></nav>
+      <article class="doc-body" id="doc-body"></article>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
+<script>
+Shop.mountChrome({ active: null });
+
+/* ---------------------------------------------------------
+   Inhalte, die rein technisch sind, stehen fertig hier.
+   Rechtstexte bleiben leer — die schreibt die Kundin bzw.
+   ihre Rechtsberatung. Die Seiten existieren trotzdem, damit
+   nichts im Shop ins Leere verlinkt.
+   --------------------------------------------------------- */
+
+var GRUPPEN = [
+  { titel: 'Service', seiten: ['versand', 'ruecksendung', 'groessen', 'zahlung', 'faq', 'kontakt'] },
+  { titel: 'Rechtliches', seiten: ['impressum', 'agb', 'widerruf', 'datenschutz'] }
+];
+
+var TODO = '<div class="todo"><strong>Dieser Text fehlt noch.</strong> ' +
+  'Er wird von Signorina.collection selbst gestellt. Die Seite ist bereits verlinkt, ' +
+  'aufrufbar und im Layout fertig — es fehlt nur der Inhalt.</div>';
+
+var SEITEN = {
+  versand: {
+    titel: 'Versand & Lieferung',
+    html:
+      '<p>Wir versenden mit DHL. Alle Bestellungen, die bis 14 Uhr eingehen, ' +
+      'gehen in der Regel am selben Werktag raus.</p>' +
+      '<div class="doc-table-wrap"><table>' +
+        '<tr><th>Land</th><th>Dauer</th><th>Kosten</th></tr>' +
+        '<tr><td>Deutschland</td><td>1–3 Werktage</td><td>4,95 € — ab 49 € kostenlos</td></tr>' +
+        '<tr><td>Österreich</td><td>3–5 Werktage</td><td>9,95 €</td></tr>' +
+        '<tr><td>Schweiz</td><td>3–5 Werktage</td><td>14,95 € zzgl. Zoll</td></tr>' +
+      '</table></div>' +
+      '<h2>Sendungsverfolgung</h2>' +
+      '<p>Sobald das Paket unterwegs ist, bekommst du die Sendungsnummer per E-Mail. ' +
+      'Den aktuellen Stand findest du jederzeit unter ' +
+      '<a href="bestellstatus.html" style="border-bottom:1px solid var(--rose-300)">Bestellstatus</a>.</p>' +
+      '<h2>Express</h2>' +
+      '<p>An der Kasse kannst du DHL Express wählen (6,90 €). Bestellungen bis 14 Uhr ' +
+      'kommen dann am nächsten Werktag.</p>'
+  },
+
+  ruecksendung: {
+    titel: 'Rückgabe & Umtausch',
+    html:
+      '<p>Du hast <strong>30 Tage</strong> ab Erhalt der Ware Zeit, sie zurückzuschicken. ' +
+      'Die Rücksendung ist innerhalb Deutschlands kostenlos.</p>' +
+      '<h2>So geht es</h2>' +
+      '<ol>' +
+        '<li>Artikel in den Originalzustand bringen — Etiketten dranlassen.</li>' +
+        '<li>Das beiliegende Rücksendeetikett auf das Paket kleben.</li>' +
+        '<li>Bei einer DHL-Filiale oder Packstation abgeben.</li>' +
+        '<li>Wir erstatten den Betrag innerhalb von 14 Tagen nach Eingang.</li>' +
+      '</ol>' +
+      '<h2>Umtausch</h2>' +
+      '<p>Für eine andere Größe oder Farbe: Artikel zurückschicken und neu bestellen. ' +
+      'So ist das gewünschte Stück am schnellsten bei dir und nicht zwischenzeitlich vergriffen.</p>' +
+      '<p>Die vollständige Widerrufsbelehrung findest du ' +
+      '<a href="service.html?p=widerruf" style="border-bottom:1px solid var(--rose-300)">hier</a>.</p>'
+  },
+
+  groessen: {
+    titel: 'Größentabelle',
+    html:
+      '<p>Alle Angaben in Zentimetern. Gemessen wird am Körper, nicht am Kleidungsstück.</p>' +
+      '<div class="doc-table-wrap"><table>' +
+        '<tr><th>Größe</th><th>Konfektion</th><th>Brust</th><th>Taille</th><th>Hüfte</th></tr>' +
+        '<tr><td>XS</td><td>32–34</td><td>78–82</td><td>60–64</td><td>86–90</td></tr>' +
+        '<tr><td>S</td><td>34–36</td><td>82–86</td><td>64–68</td><td>90–94</td></tr>' +
+        '<tr><td>M</td><td>38–40</td><td>86–92</td><td>68–74</td><td>94–100</td></tr>' +
+        '<tr><td>L</td><td>42–44</td><td>92–98</td><td>74–80</td><td>100–106</td></tr>' +
+        '<tr><td>XL</td><td>46–48</td><td>98–106</td><td>80–88</td><td>106–114</td></tr>' +
+      '</table></div>' +
+      '<h2>Richtig messen</h2>' +
+      '<ul>' +
+        '<li><strong>Brust</strong> — an der stärksten Stelle, Maßband waagerecht.</li>' +
+        '<li><strong>Taille</strong> — an der schmalsten Stelle, etwa eine Handbreit über dem Bauchnabel.</li>' +
+        '<li><strong>Hüfte</strong> — an der stärksten Stelle, etwa 20 cm unter der Taille.</li>' +
+      '</ul>' +
+      '<p>Zwischen zwei Größen? Bei Musselin und weiten Schnitten die kleinere nehmen, ' +
+      'bei figurnahen Schnitten die größere.</p>'
+  },
+
+  zahlung: {
+    titel: 'Zahlungsarten',
+    html:
+      '<p>Alle Zahlungen laufen verschlüsselt. Kartendaten sehen wir zu keinem Zeitpunkt.</p>' +
+      '<h2>Diese Wege gibt es</h2>' +
+      '<ul>' +
+        '<li><strong>PayPal</strong> — mit Käuferschutz, Zahlung sofort.</li>' +
+        '<li><strong>Klarna</strong> — Rechnung nach 30 Tagen oder Ratenzahlung.</li>' +
+        '<li><strong>Kreditkarte</strong> — Visa und Mastercard.</li>' +
+        '<li><strong>SEPA-Lastschrift</strong> — Abbuchung nach Versand.</li>' +
+      '</ul>' +
+      '<h2>Preise</h2>' +
+      '<p>Alle Preise sind Endpreise in Euro und enthalten 19 % Mehrwertsteuer. ' +
+      'Versandkosten kommen je nach Land hinzu und werden vor dem Bestellabschluss angezeigt.</p>'
+  },
+
+  faq: {
+    titel: 'Häufige Fragen',
+    html:
+      '<div class="acc" style="border-top:0">' +
+        [['Wie lange dauert der Versand?',
+          'Innerhalb Deutschlands 1–3 Werktage, nach Österreich und in die Schweiz 3–5 Werktage.'],
+         ['Ab wann ist der Versand kostenlos?',
+          'Ab einem Bestellwert von 49 € innerhalb Deutschlands. Darunter fallen 4,95 € an.'],
+         ['Kann ich meine Bestellung noch ändern?',
+          'Solange das Paket nicht raus ist, ja — schreib uns möglichst schnell über das Kontaktformular mit deiner Bestellnummer.'],
+         ['Wie schicke ich etwas zurück?',
+          'Das Rücksendeetikett liegt jedem Paket bei. Aufkleben, abgeben, fertig. Du hast 30 Tage Zeit.'],
+         ['Wann bekomme ich mein Geld zurück?',
+          'Innerhalb von 14 Tagen nach Eingang der Rücksendung, auf demselben Weg, mit dem du bezahlt hast.'],
+         ['Welche Größe passt mir?',
+          'Die Größentabelle hilft weiter. Bei weiten Musselin-Schnitten eher die kleinere Größe nehmen.'],
+         ['Wo sehe ich den Status meiner Bestellung?',
+          'Unter Bestellstatus — dort Bestellnummer und E-Mail eingeben, kein Konto nötig.']
+        ].map(function (q) {
+          return '<details><summary>' + q[0] + '</summary>' +
+                 '<div class="acc-body"><p>' + q[1] + '</p></div></details>';
+        }).join('') +
+      '</div>'
+  },
+
+  kontakt: {
+    titel: 'Kontakt',
+    html:
+      '<p>Schreib uns — wir antworten in der Regel innerhalb eines Werktags.</p>' +
+      '<form id="kontakt-form" novalidate style="margin-top:1.6rem;max-width:520px">' +
+        '<div class="field"><label for="k-name">Name</label>' +
+          '<input id="k-name" type="text" autocomplete="name">' +
+          '<span class="err" id="err-k-name" hidden></span></div>' +
+        '<div class="field"><label for="k-mail">E-Mail-Adresse</label>' +
+          '<input id="k-mail" type="email" autocomplete="email">' +
+          '<span class="err" id="err-k-mail" hidden></span></div>' +
+        '<div class="field"><label for="k-nr">Bestellnummer (falls vorhanden)</label>' +
+          '<input id="k-nr" type="text" placeholder="SIG-XXXXXXXX"></div>' +
+        '<div class="field"><label for="k-text">Deine Nachricht</label>' +
+          '<textarea id="k-text" rows="6"></textarea>' +
+          '<span class="err" id="err-k-text" hidden></span></div>' +
+        '<button type="submit" class="btn btn-gold">Nachricht senden</button>' +
+      '</form>' +
+      '<div class="todo" style="margin-top:2rem"><strong>Technischer Hinweis.</strong> ' +
+      'Das Formular prüft die Eingaben, versendet aber noch nichts — dafür braucht der Shop ' +
+      'einen Server oder einen Formulardienst. Bis dahin bitte die Kontaktadresse aus dem ' +
+      'Impressum verwenden.</div>'
+  },
+
+  impressum:   { titel: 'Impressum',            html: TODO },
+  agb:         { titel: 'Allgemeine Geschäftsbedingungen', html: TODO },
+  widerruf:    { titel: 'Widerrufsbelehrung',   html: TODO },
+  datenschutz: { titel: 'Datenschutzerklärung', html: TODO }
+};
+
+var key = Shop.param('p');
+if (!SEITEN[key]) key = 'versand';
+var seite = SEITEN[key];
+
+document.title = seite.titel + ' — Signorina.collection';
+document.getElementById('crumb').textContent = seite.titel;
+
+document.getElementById('doc-nav').innerHTML = GRUPPEN.map(function (g) {
+  return '<h4>' + g.titel + '</h4><ul>' + g.seiten.map(function (s) {
+    return '<li><a href="service.html?p=' + s + '"' +
+           (s === key ? ' class="active" aria-current="page"' : '') + '>' +
+           SEITEN[s].titel + '</a></li>';
+  }).join('') + '</ul>';
+}).join('');
+
+document.getElementById('doc-body').innerHTML =
+  '<h1>' + seite.titel + '</h1><hr class="rule rule-left">' + seite.html;
+
+/* Kontaktformular: prüfen, aber ehrlich bleiben */
+var kf = document.getElementById('kontakt-form');
+if (kf) {
+  kf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ok = true;
+    function chk(id, test, msg) {
+      var el = document.getElementById(id);
+      var err = document.getElementById('err-' + id);
+      if (!test(el.value.trim())) {
+        err.textContent = msg; err.hidden = false;
+        el.setAttribute('aria-invalid', 'true'); ok = false;
+      } else { err.hidden = true; el.removeAttribute('aria-invalid'); }
+    }
+    chk('k-name', function (v) { return v.length >= 2; }, 'Bitte den Namen eingeben.');
+    chk('k-mail', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); },
+        'Bitte eine gültige E-Mail-Adresse eingeben.');
+    chk('k-text', function (v) { return v.length >= 10; }, 'Bitte etwas mehr schreiben.');
+    if (!ok) { kf.querySelector('[aria-invalid="true"]').focus(); return; }
+    Shop.toast('Eingaben sind vollständig — der Versand fehlt noch technisch.');
+  });
+}
+</script>
+
+</body>
+</html>

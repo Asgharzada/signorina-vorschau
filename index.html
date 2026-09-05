@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F9EAEC">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="stylesheet" href="assets/style.css?v=8">
 </head>
 
 <body>
@@ -89,17 +89,17 @@
 
       <div class="styles">
         <a href="kategorie.html?c=kleider" class="style-tile"><figure style="margin:0">
-          <div class="ph ph--rose" data-ph="Kategoriebild"><svg><use href="#ic-dress"/></svg></div>
+          <div class="ph ph-art" data-cat-art="kleider"></div>
           <figcaption><strong>Kleider</strong><span>Jetzt entdecken</span></figcaption>
         </figure></a>
 
         <a href="kategorie.html?c=sets" class="style-tile"><figure style="margin:0">
-          <div class="ph ph--sage" data-ph="Kategoriebild"><svg><use href="#ic-hanger"/></svg></div>
+          <div class="ph ph-art" data-cat-art="sets"></div>
           <figcaption><strong>Sets &amp; Zweiteiler</strong><span>Jetzt entdecken</span></figcaption>
         </figure></a>
 
         <a href="kategorie.html?c=accessoires" class="style-tile"><figure style="margin:0">
-          <div class="ph ph--camel" data-ph="Kategoriebild"><svg><use href="#ic-bag"/></svg></div>
+          <div class="ph ph-art" data-cat-art="accessoires"></div>
           <figcaption><strong>Accessoires</strong><span>Jetzt entdecken</span></figcaption>
         </figure></a>
       </div>
@@ -109,7 +109,7 @@
   <!-- ===== Markengeschichte ===== -->
   <section class="section story" id="story">
     <div class="wrap story-grid">
-      <div class="ph ph--ink" data-ph="Markenbild"><svg><use href="#ic-hanger"/></svg></div>
+      <div class="ph ph-art" data-story-art></div>
       <div class="story-text">
         <p class="eyebrow">Über uns</p>
         <h2>Signorina.collection</h2>
@@ -154,12 +154,12 @@
       </div>
 
       <div class="ig-grid">
-        <a href="#" class="ig-item"><div class="ph ph--rose" data-ph="Instagram"><svg><use href="#ic-dress"/></svg></div></a>
-        <a href="#" class="ig-item"><div class="ph ph--camel" data-ph="Instagram"><svg><use href="#ic-blouse"/></svg></div></a>
-        <a href="#" class="ig-item"><div class="ph ph--sage" data-ph="Instagram"><svg><use href="#ic-bag"/></svg></div></a>
-        <a href="#" class="ig-item"><div class="ph ph--ink" data-ph="Instagram"><svg><use href="#ic-hanger"/></svg></div></a>
-        <a href="#" class="ig-item"><div class="ph ph--gold" data-ph="Instagram"><svg><use href="#ic-dress"/></svg></div></a>
-        <a href="#" class="ig-item"><div class="ph ph--rose" data-ph="Instagram"><svg><use href="#ic-blouse"/></svg></div></a>
+        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
+        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
+        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
+        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
+        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
+        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
       </div>
     </div>
   </section>
@@ -187,7 +187,8 @@
 
 <div id="site-footer"></div>
 
-<script src="assets/shop.js?v=3"></script>
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
 <script>
 Shop.mountChrome({ active: null });
 
@@ -215,6 +216,26 @@ document.getElementById('prev').addEventListener('click', function () {
 });
 
 /* --- Newsletter (Vorschau: keine echte Anmeldung) --- */
+
+/* --- Feste Bildflächen mit echten Artikeln der Kollektion füllen --- */
+function fill(sel, list) {
+  var nodes = document.querySelectorAll(sel);
+  Array.prototype.forEach.call(nodes, function (el, i) {
+    var p = list[i % list.length];
+    if (!p) return;
+    el.innerHTML = Art.forProduct(p, Shop.tileColor(p),
+      Shop.COLORS[Shop.tileColor(p)] || '#E9C3CB', 'tile' + i);
+  });
+}
+['kleider', 'sets', 'accessoires'].forEach(function (c) {
+  fill('[data-cat-art="' + c + '"]', Shop.byCategory(c));
+});
+fill('[data-story-art]', Shop.byCategory('kleider').slice(2));
+fill('[data-ig-art]', Shop.PRODUCTS.slice().sort(function (a, b) {
+  return (b.rating * b.reviews) - (a.rating * a.reviews);
+}));
+Shop.refreshBadges();
+
 document.getElementById('news-form').addEventListener('submit', function (e) {
   e.preventDefault();
   this.reset();

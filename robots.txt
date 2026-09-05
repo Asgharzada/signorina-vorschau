@@ -1,0 +1,8 @@
+# Signorina.collection — Vorschau
+# Solange der Shop Beispieldaten enthaelt, wird nichts indexiert.
+# Zum Livegang: Disallow entfernen und die Sitemap-Zeile behalten.
+
+User-agent: *
+Disallow: /
+
+Sitemap: https://asgharzada.github.io/signorina-vorschau/sitemap.xml

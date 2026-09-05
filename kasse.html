@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kasse — Signorina.collection</title>
+<meta name="description" content="Bestellung abschließen bei Signorina.collection.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=8">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap" style="padding-top:2rem;padding-bottom:clamp(3.5rem,7vw,6rem)">
+
+    <h1 style="font-size:clamp(1.8rem,3.6vw,2.6rem);text-align:center">Kasse</h1>
+    <hr class="rule">
+
+    <nav class="steps" id="steps" aria-label="Bestellschritte"></nav>
+
+    <div id="checkout-root"></div>
+
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
+<script>
+Shop.mountChrome({ active: null });
+
+var root  = document.getElementById('checkout-root');
+var stepsEl = document.getElementById('steps');
+var step  = 1;
+
+var data = {
+  email: '', vorname: '', nachname: '', strasse: '', plz: '', ort: '',
+  land: 'Deutschland', telefon: '',
+  versand: 'standard', zahlung: 'paypal'
+};
+
+var VERSAND = {
+  standard: { label: 'DHL Standard', note: 'Lieferung in 1–3 Werktagen' },
+  express:  { label: 'DHL Express',  note: 'Lieferung am nächsten Werktag', extra: 6.90 }
+};
+var ZAHLUNG = {
+  paypal:     'PayPal',
+  klarna:     'Klarna — Rechnung oder Raten',
+  kreditkarte:'Kreditkarte',
+  sepa:       'SEPA-Lastschrift'
+};
+
+function euro(n) { return Shop.money(n); }
+
+function renderSteps() {
+  var names = ['Adresse', 'Versand & Zahlung', 'Prüfen'];
+  stepsEl.innerHTML = names.map(function (n, i) {
+    var idx = i + 1;
+    var cls = 'step' + (idx < step ? ' done' : '');
+    var cur = idx === step ? ' aria-current="step"' : '';
+    return '<span class="' + cls + '"' + cur + '><i>' + (idx < step ? '✓' : idx) + '</i>' +
+           '<span>' + n + '</span></span>' +
+           (idx < 3 ? '<span class="step-sep">·</span>' : '');
+  }).join('');
+}
+
+/* Zusammenfassung rechts — auf jedem Schritt sichtbar */
+function extraShipping() {
+  return data.versand === 'express' ? VERSAND.express.extra : 0;
+}
+
+function summaryHtml() {
+  // Eine einzige Rechenquelle — sonst zeigt die Kasse etwas anderes
+  // an, als spaeter in der Bestellung steht.
+  var t = Shop.totals(null, extraShipping());
+  var shipping = t.shipping;
+  var total = t.total;
+  var vat = t.vat;
+
+  return '' +
+    '<aside class="summary">' +
+      '<h2>Deine Bestellung</h2>' +
+      t.lines.map(function (x) {
+        return '<div class="sum-row"><span>' + x.line.qty + ' × ' + x.product.name +
+               '<br><span style="color:var(--muted);font-size:.8rem">' +
+               x.line.color + ' · ' + x.line.size + '</span></span>' +
+               '<span>' + euro(x.sum) + '</span></div>';
+      }).join('') +
+      '<div class="sum-row" style="border-top:1px solid var(--line);margin-top:.6rem;padding-top:.8rem">' +
+        '<span>Zwischensumme</span><span>' + euro(t.subtotal) + '</span></div>' +
+      '<div class="sum-row"><span>Versand</span><span>' +
+        (shipping === 0 ? 'kostenlos' : euro(shipping)) + '</span></div>' +
+      '<div class="sum-row total"><span>Gesamt</span><span>' + euro(total) + '</span></div>' +
+      '<p class="sum-note">inkl. ' + euro(vat) + ' MwSt. (19 %)</p>' +
+    '</aside>';
+}
+
+function field(id, label, type, value, extra) {
+  return '<div class="field">' +
+    '<label for="' + id + '">' + label + '</label>' +
+    '<input id="' + id + '" name="' + id + '" type="' + type + '" value="' +
+      String(value || '').replace(/"/g, '&quot;') + '"' + (extra || '') + '>' +
+    '<span class="err" id="err-' + id + '" hidden></span>' +
+  '</div>';
+}
+
+/* ---------- Schritt 1: Adresse ---------- */
+function step1() {
+  return '' +
+  '<form id="form1" novalidate>' +
+    '<h2 style="font-size:1.4rem;margin-bottom:1.2rem">Kontakt</h2>' +
+    field('email', 'E-Mail-Adresse', 'email', data.email, ' autocomplete="email" inputmode="email"') +
+    '<h2 style="font-size:1.4rem;margin:2rem 0 1.2rem">Lieferadresse</h2>' +
+    '<div class="field-row">' +
+      field('vorname', 'Vorname', 'text', data.vorname, ' autocomplete="given-name"') +
+      field('nachname', 'Nachname', 'text', data.nachname, ' autocomplete="family-name"') +
+    '</div>' +
+    field('strasse', 'Straße und Hausnummer', 'text', data.strasse, ' autocomplete="street-address"') +
+    '<div class="field-row narrow">' +
+      field('plz', 'PLZ', 'text', data.plz, ' autocomplete="postal-code" inputmode="numeric" maxlength="5"') +
+      field('ort', 'Ort', 'text', data.ort, ' autocomplete="address-level2"') +
+    '</div>' +
+    '<div class="field">' +
+      '<label for="land">Land</label>' +
+      '<select id="land" name="land">' +
+        ['Deutschland', 'Österreich', 'Schweiz'].map(function (l) {
+          return '<option' + (data.land === l ? ' selected' : '') + '>' + l + '</option>';
+        }).join('') +
+      '</select>' +
+    '</div>' +
+    field('telefon', 'Telefon (optional, für die Zustellung)', 'tel', data.telefon, ' autocomplete="tel"') +
+    '<button type="submit" class="btn btn-gold" style="margin-top:1rem">Weiter zu Versand</button>' +
+  '</form>';
+}
+
+/* ---------- Schritt 2: Versand und Zahlung ---------- */
+function step2() {
+  var t = Shop.totals();
+  var standardPrice = t.shipping === 0 ? 'kostenlos' : euro(t.shipping);
+
+  return '' +
+  '<form id="form2" novalidate>' +
+    '<h2 style="font-size:1.4rem;margin-bottom:1.2rem">Versandart</h2>' +
+    '<label class="ship-option' + (data.versand === 'standard' ? ' sel' : '') + '">' +
+      '<input type="radio" name="versand" value="standard"' +
+        (data.versand === 'standard' ? ' checked' : '') + '>' +
+      '<span><strong>DHL Standard</strong><span>Lieferung in 1–3 Werktagen</span></span>' +
+      '<span class="price">' + standardPrice + '</span>' +
+    '</label>' +
+    '<label class="ship-option' + (data.versand === 'express' ? ' sel' : '') + '">' +
+      '<input type="radio" name="versand" value="express"' +
+        (data.versand === 'express' ? ' checked' : '') + '>' +
+      '<span><strong>DHL Express</strong><span>Lieferung am nächsten Werktag</span></span>' +
+      '<span class="price">' + euro(VERSAND.express.extra) + '</span>' +
+    '</label>' +
+
+    '<h2 style="font-size:1.4rem;margin:2.2rem 0 1.2rem">Zahlungsart</h2>' +
+    Object.keys(ZAHLUNG).map(function (k) {
+      return '<label class="pay-option' + (data.zahlung === k ? ' sel' : '') + '">' +
+        '<input type="radio" name="zahlung" value="' + k + '"' +
+          (data.zahlung === k ? ' checked' : '') + '>' +
+        '<span><strong>' + ZAHLUNG[k] + '</strong></span>' +
+      '</label>';
+    }).join('') +
+
+    '<div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.6rem">' +
+      '<button type="button" class="btn btn-ghost-light" data-back>Zurück</button>' +
+      '<button type="submit" class="btn btn-gold">Weiter zur Prüfung</button>' +
+    '</div>' +
+  '</form>';
+}
+
+/* ---------- Schritt 3: Prüfen und bestellen ---------- */
+function step3() {
+  var total = Shop.totals(null, extraShipping()).total;
+
+  return '' +
+  '<form id="form3" novalidate>' +
+    '<div class="review-block">' +
+      '<h3>Kontakt <button type="button" class="link-plain edit" data-goto="1">ändern</button></h3>' +
+      '<p>' + data.email + '</p>' +
+    '</div>' +
+    '<div class="review-block">' +
+      '<h3>Lieferadresse <button type="button" class="link-plain edit" data-goto="1">ändern</button></h3>' +
+      '<p>' + data.vorname + ' ' + data.nachname + '<br>' +
+        data.strasse + '<br>' + data.plz + ' ' + data.ort + '<br>' + data.land +
+        (data.telefon ? '<br>Tel. ' + data.telefon : '') + '</p>' +
+    '</div>' +
+    '<div class="review-block">' +
+      '<h3>Versand &amp; Zahlung <button type="button" class="link-plain edit" data-goto="2">ändern</button></h3>' +
+      '<p>' + VERSAND[data.versand].label + ' — ' + VERSAND[data.versand].note + '<br>' +
+        ZAHLUNG[data.zahlung] + '</p>' +
+    '</div>' +
+
+    '<label class="pay-option" style="align-items:center" id="agb-box">' +
+      '<input type="checkbox" id="agb">' +
+      '<span><span style="font-size:.86rem;color:var(--ink)">Ich habe die ' +
+        '<a href="service.html?p=agb" style="border-bottom:1px solid var(--rose-300)">AGB</a> und die ' +
+        '<a href="service.html?p=widerruf" style="border-bottom:1px solid var(--rose-300)">Widerrufsbelehrung</a> ' +
+        'gelesen und stimme ihnen zu.</span></span>' +
+    '</label>' +
+    '<span class="err" id="err-agb" hidden style="display:block;margin-bottom:1rem"></span>' +
+
+    '<p class="legal-note">Mit dem Klick auf &bdquo;Zahlungspflichtig bestellen&ldquo; ' +
+      'schließt du einen verbindlichen Kaufvertrag über ' + euro(total) + ' ab.</p>' +
+
+    '<div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.4rem">' +
+      '<button type="button" class="btn btn-ghost-light" data-back>Zurück</button>' +
+      '<button type="submit" class="btn btn-gold" id="order-btn">Zahlungspflichtig bestellen</button>' +
+    '</div>' +
+  '</form>';
+}
+
+/* ---------- Prüfungen ---------- */
+function setErr(id, msg) {
+  var input = document.getElementById(id);
+  var err = document.getElementById('err-' + id);
+  if (!err) return;
+  if (msg) {
+    err.textContent = msg; err.hidden = false;
+    if (input) input.setAttribute('aria-invalid', 'true');
+  } else {
+    err.hidden = true;
+    if (input) input.removeAttribute('aria-invalid');
+  }
+}
+
+function validateStep1() {
+  var ok = true;
+  var v = function (id) { return document.getElementById(id).value.trim(); };
+
+  ['email', 'vorname', 'nachname', 'strasse', 'plz', 'ort'].forEach(function (id) { setErr(id, ''); });
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email'))) {
+    setErr('email', 'Bitte eine gültige E-Mail-Adresse eingeben.'); ok = false;
+  }
+  if (v('vorname').length < 2)  { setErr('vorname', 'Bitte den Vornamen eingeben.'); ok = false; }
+  if (v('nachname').length < 2) { setErr('nachname', 'Bitte den Nachnamen eingeben.'); ok = false; }
+  if (v('strasse').length < 4)  { setErr('strasse', 'Bitte Straße und Hausnummer eingeben.'); ok = false; }
+
+  var land = document.getElementById('land').value;
+  var plz = v('plz');
+  var plzOk = land === 'Deutschland' ? /^\d{5}$/.test(plz)
+            : land === 'Österreich'  ? /^\d{4}$/.test(plz)
+            : /^\d{4}$/.test(plz);
+  if (!plzOk) {
+    setErr('plz', land === 'Deutschland' ? 'Die PLZ hat 5 Ziffern.' : 'Die PLZ hat 4 Ziffern.');
+    ok = false;
+  }
+  if (v('ort').length < 2) { setErr('ort', 'Bitte den Ort eingeben.'); ok = false; }
+
+  if (ok) {
+    ['email','vorname','nachname','strasse','plz','ort','telefon'].forEach(function (id) {
+      data[id] = v(id);
+    });
+    data.land = land;
+  } else {
+    var first = document.querySelector('[aria-invalid="true"]');
+    if (first) first.focus();
+  }
+  return ok;
+}
+
+/* ---------- Aufbau ---------- */
+function render() {
+  if (!Shop.cartItems().length) {
+    document.getElementById('steps').hidden = true;
+    root.innerHTML =
+      '<div class="empty-state">' +
+        '<svg viewBox="0 0 24 24"><path d="M6 7h12l1.4 13H4.6L6 7Z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/></svg>' +
+        '<h2>Nichts zu bezahlen</h2>' +
+        '<p>Dein Warenkorb ist leer.</p>' +
+        '<a href="kategorie.html?c=neu" class="btn btn-gold">Kollektion ansehen</a>' +
+      '</div>';
+    return;
+  }
+
+  renderSteps();
+  var body = step === 1 ? step1() : step === 2 ? step2() : step3();
+  root.innerHTML = '<div class="cart-layout"><div>' + body + '</div>' + summaryHtml() + '</div>';
+  wire();
+}
+
+function wire() {
+  var f1 = document.getElementById('form1');
+  if (f1) f1.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (validateStep1()) { step = 2; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+
+  var f2 = document.getElementById('form2');
+  if (f2) {
+    f2.addEventListener('change', function (e) {
+      if (e.target.name === 'versand') { data.versand = e.target.value; render(); }
+      if (e.target.name === 'zahlung') { data.zahlung = e.target.value; render(); }
+    });
+    f2.addEventListener('submit', function (e) {
+      e.preventDefault(); step = 3; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  var f3 = document.getElementById('form3');
+  if (f3) f3.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var agb = document.getElementById('agb');
+    var err = document.getElementById('err-agb');
+    if (!agb.checked) {
+      err.textContent = 'Bitte AGB und Widerrufsbelehrung bestätigen.';
+      err.hidden = false;
+      document.getElementById('agb-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    err.hidden = true;
+
+    var btn = document.getElementById('order-btn');
+    btn.disabled = true;
+    btn.textContent = 'Bestellung wird abgeschlossen …';
+
+    data.stamp = new Date().toISOString();
+    data.versandLabel = VERSAND[data.versand].label;
+    data.zahlungLabel = ZAHLUNG[data.zahlung];
+    data.versandExtra = data.versand === 'express' ? VERSAND.express.extra : 0;
+
+    var order = Shop.placeOrder(data);
+    if (!order) { btn.disabled = false; btn.textContent = 'Zahlungspflichtig bestellen'; return; }
+    window.location.href = 'danke.html?nr=' + encodeURIComponent(order.number);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-back]'), function (b) {
+    b.addEventListener('click', function () { step--; render(); window.scrollTo({ top: 0 }); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (b) {
+    b.addEventListener('click', function () { step = +b.dataset.goto; render(); window.scrollTo({ top: 0 }); });
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>

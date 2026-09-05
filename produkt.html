@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F9EAEC">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="stylesheet" href="assets/style.css?v=8">
 </head>
 
 <body>
@@ -72,6 +72,7 @@
             <button type="button" id="qty-plus" aria-label="Menge erhöhen">+</button>
           </div>
           <button class="btn btn-gold" id="add">In den Warenkorb</button>
+          <button class="btn btn-ghost-light" type="button" id="wish-pdp">Merken</button>
         </div>
 
         <!-- Kurzvorteile -->
@@ -148,7 +149,8 @@
 
 <div id="site-footer"></div>
 
-<script src="assets/shop.js?v=3"></script>
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
 <script>
 (function () {
   var product = Shop.get(Shop.param('id')) || Shop.PRODUCTS[0];
@@ -175,11 +177,14 @@
   }
 
   function paintGallery() {
+    var hex = Shop.COLORS[chosenColor] || '#E9C3CB';
     document.getElementById('gallery-main').innerHTML =
-      Shop.phMarkup(chosenColor, 'Produktfoto — ' + currentView(), icon);
+      '<div class="ph ph-art">' +
+      Art.forProduct(product, chosenColor, hex, currentView()) + '</div>';
 
     Array.prototype.forEach.call(document.querySelectorAll('.thumb'), function (b) {
-      b.innerHTML = Shop.phMarkup(chosenColor, '', icon).replace('class="ph', 'class="ph ph-quiet');
+      b.innerHTML = '<div class="ph ph-art">' +
+        Art.forProduct(product, chosenColor, hex, b.dataset.view) + '</div>';
     });
   }
 
@@ -275,7 +280,7 @@
       document.getElementById('block-size').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    Shop.addToCart(qty);
+    Shop.addToCart(product, chosenColor, chosenSize, qty);
     Shop.toast(product.name + ' · ' + chosenColor + ' · ' + chosenSize + ' — in den Warenkorb gelegt');
   });
 
@@ -314,6 +319,72 @@
     });
   }
   document.getElementById('related').innerHTML = related.map(Shop.card).join('');
+
+  /* ---------- Merken ---------- */
+  var wishBtn = document.getElementById('wish-pdp');
+  function paintWish() {
+    wishBtn.textContent = Shop.inWish(product.id) ? 'Gemerkt ♥' : 'Merken';
+  }
+  wishBtn.addEventListener('click', function () {
+    Shop.toggleWish(product.id);
+    paintWish();
+    Shop.toast(Shop.inWish(product.id)
+      ? product.name + ' zur Merkliste hinzugefügt'
+      : product.name + ' von der Merkliste entfernt');
+  });
+  paintWish();
+
+  /* ---------- Strukturierte Daten + Open Graph ----------
+     Google versteht dadurch Preis, Verfuegbarkeit und Bewertung.
+     Erst zum Livegang wirksam, weil die Seiten noch noindex tragen. */
+  var verfuegbar = product.soldOut.length < product.sizes.length;
+  var ld = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.desc,
+    sku: product.id,
+    material: product.material,
+    color: product.colors.join(', '),
+    brand: { '@type': 'Brand', name: 'Signorina.collection' },
+    offers: {
+      '@type': 'Offer',
+      price: product.price.toFixed(2),
+      priceCurrency: 'EUR',
+      availability: verfuegbar
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      url: location.href
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating,
+      reviewCount: product.reviews
+    }
+  };
+  var ldTag = document.createElement('script');
+  ldTag.type = 'application/ld+json';
+  ldTag.textContent = JSON.stringify(ld);
+  document.head.appendChild(ldTag);
+
+  function meta(attr, key, value) {
+    var m = document.createElement('meta');
+    m.setAttribute(attr, key);
+    m.setAttribute('content', value);
+    document.head.appendChild(m);
+  }
+  meta('property', 'og:type', 'product');
+  meta('property', 'og:title', product.name + ' — Signorina.collection');
+  meta('property', 'og:description', product.desc);
+  meta('property', 'og:url', location.href);
+  meta('property', 'product:price:amount', product.price.toFixed(2));
+  meta('property', 'product:price:currency', 'EUR');
+  meta('name', 'twitter:card', 'summary_large_image');
+
+  var desc = document.querySelector('meta[name="description"]');
+  if (desc) desc.setAttribute('content', product.name + ' — ' + product.desc.slice(0, 150));
+
+  Shop.refreshBadges();
 })();
 </script>
 

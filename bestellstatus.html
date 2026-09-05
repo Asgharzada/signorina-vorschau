@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bestellstatus — Signorina.collection</title>
+<meta name="description" content="Status deiner Bestellung bei Signorina.collection prüfen.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=8">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Brotkrumen">
+      <a href="index.html">Startseite</a>
+      <span class="sep">/</span>
+      <span aria-current="page">Bestellstatus</span>
+    </nav>
+
+    <div class="section" style="padding-top:1rem">
+      <div style="max-width:520px;margin:0 auto">
+        <p class="eyebrow" style="text-align:center">Ohne Anmeldung</p>
+        <h1 style="font-size:clamp(1.9rem,4vw,2.8rem);text-align:center;margin-top:.4rem">
+          Wo ist meine Bestellung?</h1>
+        <hr class="rule">
+        <p style="text-align:center;color:var(--ink-soft);margin-bottom:2rem">
+          Bestellnummer und E-Mail-Adresse eingeben — mehr braucht es nicht.
+        </p>
+
+        <form id="status-form" novalidate>
+          <div class="field">
+            <label for="nr">Bestellnummer</label>
+            <input id="nr" type="text" placeholder="SIG-XXXXXXXX" autocomplete="off">
+            <span class="err" id="err-nr" hidden></span>
+          </div>
+          <div class="field">
+            <label for="mail">E-Mail-Adresse der Bestellung</label>
+            <input id="mail" type="email" autocomplete="email" inputmode="email">
+            <span class="err" id="err-mail" hidden></span>
+          </div>
+          <button type="submit" class="btn btn-gold btn-block">Status anzeigen</button>
+        </form>
+
+        <div id="status-result" style="margin-top:2.4rem"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
+<script>
+Shop.mountChrome({ active: null });
+
+var out = document.getElementById('status-result');
+var nrInput = document.getElementById('nr');
+var mailInput = document.getElementById('mail');
+
+// Aus der Danke-Seite verlinkt: Nummer vorausfüllen
+var pre = Shop.param('nr');
+if (pre) {
+  nrInput.value = pre;
+  var last = Shop.lastOrder();
+  if (last && last.number === pre) mailInput.value = last.email;
+}
+
+function setErr(id, msg) {
+  var e = document.getElementById('err-' + id);
+  var i = document.getElementById(id);
+  if (msg) { e.textContent = msg; e.hidden = false; i.setAttribute('aria-invalid', 'true'); }
+  else { e.hidden = true; i.removeAttribute('aria-invalid'); }
+}
+
+function show(order) {
+  var datum = new Date(order.stamp);
+  var datumTxt = datum.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  // Ohne echten Versanddienstleister endet die Kette bei "wird verpackt".
+  // Alles danach wüsste nur ein Warenwirtschaftssystem.
+  var lines = order.lines.map(function (l) {
+    return '<div class="sum-row"><span>' + l.qty + ' × ' + l.name +
+           '<br><span style="color:var(--muted);font-size:.8rem">' + l.color + ' · ' + l.size +
+           '</span></span><span>' + Shop.money(l.sum) + '</span></div>';
+  }).join('');
+
+  out.innerHTML =
+    '<div class="summary" style="position:static">' +
+      '<p class="eyebrow">Bestellung ' + order.number + '</p>' +
+      '<h2 style="margin:.4rem 0 1.2rem">Status</h2>' +
+      '<div class="timeline">' +
+        '<div class="tl-step done"><i>✓</i><div><strong>Bestellung eingegangen</strong>' +
+          '<span>' + datumTxt + '</span></div></div>' +
+        '<div class="tl-step done"><i>✓</i><div><strong>Zahlung bestätigt</strong>' +
+          '<span>' + order.customer.zahlungLabel + '</span></div></div>' +
+        '<div class="tl-step"><i>3</i><div><strong>Wird verpackt</strong>' +
+          '<span>meist innerhalb eines Werktags</span></div></div>' +
+        '<div class="tl-step"><i>4</i><div><strong>Unterwegs zu dir</strong>' +
+          '<span>' + order.customer.versandLabel + ' — Sendungsnummer folgt per E-Mail</span></div></div>' +
+      '</div>' +
+      lines +
+      '<div class="sum-row total"><span>Gesamt</span><span>' + Shop.money(order.total) + '</span></div>' +
+      '<p class="sum-note">Fragen zur Bestellung? ' +
+        '<a href="service.html?p=kontakt" style="border-bottom:1px solid var(--rose-300)">Schreib uns</a>.</p>' +
+    '</div>';
+}
+
+document.getElementById('status-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  setErr('nr', ''); setErr('mail', '');
+  out.innerHTML = '';
+
+  var nr = nrInput.value.trim();
+  var mail = mailInput.value.trim();
+  var ok = true;
+
+  if (!/^SIG-[0-9A-Z]{8}$/i.test(nr)) {
+    setErr('nr', 'Die Bestellnummer sieht so aus: SIG-1A2B3C4D'); ok = false;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) {
+    setErr('mail', 'Bitte eine gültige E-Mail-Adresse eingeben.'); ok = false;
+  }
+  if (!ok) return;
+
+  var order = Shop.findOrder(nr, mail);
+  if (!order) {
+    out.innerHTML =
+      '<div class="free-hint" style="border-color:var(--rose-300)">' +
+        'Zu dieser Kombination aus Bestellnummer und E-Mail-Adresse finden wir nichts. ' +
+        'Bitte beides prüfen — die E-Mail muss die sein, mit der bestellt wurde.' +
+      '</div>';
+    return;
+  }
+  show(order);
+});
+
+// Direkt anzeigen, wenn beide Felder aus der Danke-Seite kommen
+if (nrInput.value && mailInput.value) {
+  var o = Shop.findOrder(nrInput.value, mailInput.value);
+  if (o) show(o);
+}
+</script>
+
+</body>
+</html>

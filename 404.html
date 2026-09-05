@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seite nicht gefunden — Signorina.collection</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=8">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap nf">
+    <p class="code">404</p>
+    <h1 style="font-size:clamp(1.6rem,3.4vw,2.4rem);margin-top:.5rem">Diese Seite gibt es nicht</h1>
+    <hr class="rule">
+    <p style="color:var(--ink-soft);max-width:440px;margin:0 auto 2rem">
+      Vielleicht wurde der Link falsch kopiert oder das Stück ist nicht mehr im Sortiment.
+    </p>
+    <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap">
+      <a href="index.html" class="btn btn-gold">Zur Startseite</a>
+      <a href="kategorie.html?c=neu" class="btn btn-ghost-light">Neuheiten ansehen</a>
+    </div>
+  </div>
+
+  <div class="wrap section" style="padding-top:0">
+    <div class="section-head">
+      <p class="eyebrow">Vielleicht stattdessen</p>
+      <h2>Die Lieblingsstücke</h2>
+      <hr class="rule">
+    </div>
+    <div class="grid-products" id="nf-grid"></div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/art.js?v=8"></script>
+<script src="assets/shop.js?v=8"></script>
+<script>
+Shop.mountChrome({ active: null });
+document.getElementById('nf-grid').innerHTML = Shop.PRODUCTS.slice()
+  .sort(function (a, b) { return (b.rating * b.reviews) - (a.rating * a.reviews); })
+  .slice(0, 4).map(Shop.card).join('');
+Shop.refreshBadges();
+</script>
+
+</body>
+</html>
