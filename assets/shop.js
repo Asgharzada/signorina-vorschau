@@ -109,6 +109,42 @@
       details: ['Goldfarbene Knopfleiste', 'Zwei Brusttaschen', 'Abnehmbarer Stoffgürtel', 'Midi-Länge'],
       rating: 4.7, reviews: 12
     },
+    {
+      id: 'kleid-elena', name: 'Kleid „Elena“', cat: 'kleider',
+      price: 74.95, old: null, badge: null,
+      colors: ['Rosé', 'Schwarz'], sizes: CLOTHING_SIZES, soldOut: [],
+      material: '92 % Viskose, 8 % Elasthan',
+      desc: 'Weiches Jerseykleid mit angeschnittenen Ärmeln und leicht gerafftem Seitenteil — das Kleid für Tage, an denen es schnell gehen muss.',
+      details: ['Seitliche Raffung', 'Angeschnittene Ärmel', 'Knitterarm, gut für Reisen', 'Knielang'],
+      rating: 4.5, reviews: 26
+    },
+    {
+      id: 'kleid-marisa', name: 'Kleid „Marisa“', cat: 'kleider',
+      price: 94.95, old: null, badge: 'neu',
+      colors: ['Creme', 'Camel'], sizes: CLOTHING_SIZES, soldOut: ['XS'],
+      material: '100 % Polyester in Satinoptik',
+      desc: 'Satinkleid mit schmalen Trägern und fließendem Fall — für Hochzeiten, Feiern und lange Abende.',
+      details: ['Satinoptik mit sanftem Glanz', 'Verstellbare Träger', 'Rückenausschnitt in V-Form', 'Maxi-Länge'],
+      rating: 4.8, reviews: 8
+    },
+    {
+      id: 'kleid-gioia', name: 'Kleid „Gioia“', cat: 'kleider',
+      price: 59.95, old: 79.95, badge: 'sale',
+      colors: ['Rosé', 'Weiß'], sizes: CLOTHING_SIZES, soldOut: ['L'],
+      material: '100 % Baumwolle',
+      desc: 'Luftiges Sommerkleid mit Puffärmeln und Rundhalsausschnitt — schlicht genug, um es mit allem zu kombinieren.',
+      details: ['Kurze Puffärmel', 'Elastischer Rückenbund', 'Zwei Seitentaschen', 'Aus der Vorsaison — reduziert'],
+      rating: 4.3, reviews: 23
+    },
+    {
+      id: 'kleid-nora', name: 'Kleid „Nora“', cat: 'kleider',
+      price: 69.95, old: null, badge: null,
+      colors: ['Salbei', 'Schwarz'], sizes: CLOTHING_SIZES, soldOut: [],
+      material: '75 % Viskose, 25 % Polyester',
+      desc: 'Feingestricktes Kleid, das sich weich anlegt, ohne aufzutragen — im Herbst mit Stiefeln, im Sommer barfuß.',
+      details: ['Feinstrick, nicht kratzend', 'Rundhalsausschnitt', 'Rippbündchen am Saum', 'Midi-Länge'],
+      rating: 4.6, reviews: 19
+    },
 
     /* ---- Oberteile ---- */
     {
@@ -156,6 +192,42 @@
       details: ['Weite Ballonärmel', 'Bindebändchen am Ausschnitt', 'Gerader Saum', 'Blickdicht'],
       rating: 4.7, reviews: 9
     },
+    {
+      id: 'pullover-siena', name: 'Pullover „Siena“', cat: 'oberteile',
+      price: 64.95, old: null, badge: null,
+      colors: ['Creme', 'Rosé', 'Camel'], sizes: CLOTHING_SIZES, soldOut: ['S'],
+      material: '55 % Viskose, 30 % Polyamid, 15 % Wolle',
+      desc: 'Weicher Feinstrickpullover mit rundem Ausschnitt und leicht überschnittener Schulter.',
+      details: ['Leicht überschnittene Schulter', 'Rundhalsausschnitt', 'Feinstrick mit Wollanteil', 'Hüftlang'],
+      rating: 4.7, reviews: 38
+    },
+    {
+      id: 'bluse-fiora', name: 'Bluse „Fiora“', cat: 'oberteile',
+      price: 44.95, old: 59.95, badge: 'sale',
+      colors: ['Rosé', 'Weiß'], sizes: CLOTHING_SIZES, soldOut: ['XS', 'S'],
+      material: '100 % Viskose',
+      desc: 'Blusenshirt mit V-Ausschnitt und weiten Ärmeln, die am Bündchen zusammenlaufen.',
+      details: ['V-Ausschnitt', 'Weite Ärmel mit Bündchen', 'Gerader Schnitt', 'Aus der Vorsaison — reduziert'],
+      rating: 4.4, reviews: 17
+    },
+    {
+      id: 'blazer-torino', name: 'Blazer „Torino“', cat: 'oberteile',
+      price: 89.95, old: null, badge: 'neu',
+      colors: ['Salbei', 'Schwarz'], sizes: CLOTHING_SIZES, soldOut: [],
+      material: '70 % Polyester, 26 % Viskose, 4 % Elasthan',
+      desc: 'Kurz geschnittener Blazer mit goldfarbenen Knöpfen — die strengere Schwester des „Milano“.',
+      details: ['Taillierter, kurzer Schnitt', 'Zwei goldfarbene Knöpfe', 'Leicht gefüttert', 'Reverskragen'],
+      rating: 4.8, reviews: 11
+    },
+    {
+      id: 'shirt-luna', name: 'Shirt „Luna“', cat: 'oberteile',
+      price: 24.95, old: null, badge: null,
+      colors: ['Weiß', 'Rosé', 'Schwarz'], sizes: CLOTHING_SIZES, soldOut: [],
+      material: '100 % Baumwolle',
+      desc: 'Das einfache Baumwollshirt mit rundem Ausschnitt — dreimal im Schrank und nie das falsche Teil.',
+      details: ['Mittelschwere Baumwolle, nicht durchscheinend', 'Rundhalsausschnitt', 'Gerader Schnitt', 'Bei 40 °C waschbar'],
+      rating: 4.5, reviews: 71
+    },
 
     /* ---- Sets ---- */
     {
@@ -184,6 +256,33 @@
       desc: 'Feinstrick-Set aus Pullover und Midirock in einem Ton — warm, weich und sofort angezogen.',
       details: ['Zweiteilig: Pullover + Midirock', 'Elastischer Rockbund', 'Feinstrick, nicht kratzend', 'Aus der Vorsaison — reduziert'],
       rating: 4.6, reviews: 25
+    },
+    {
+      id: 'set-amalia', name: 'Set „Amalia“', cat: 'sets',
+      price: 84.95, old: null, badge: 'neu',
+      colors: ['Rosé', 'Creme'], sizes: CLOTHING_SIZES, soldOut: ['XL'],
+      material: '100 % Musselin-Baumwolle',
+      desc: 'Kurzes Oberteil mit Bindeband und weiter Culotte im selben Ton — luftig und trotzdem angezogen.',
+      details: ['Zweiteilig: Top + Culotte', 'Bindeband an der Taille', 'Elastischer Bund', 'Beide Teile einzeln tragbar'],
+      rating: 4.7, reviews: 7
+    },
+    {
+      id: 'set-verano', name: 'Set „Verano“', cat: 'sets',
+      price: 69.95, old: 89.95, badge: 'sale',
+      colors: ['Weiß', 'Salbei'], sizes: CLOTHING_SIZES, soldOut: ['S', 'M'],
+      material: '65 % Leinen, 35 % Viskose',
+      desc: 'Leinenset aus kurzärmeliger Bluse und Shorts — das Reiseset für heiße Tage.',
+      details: ['Zweiteilig: Bluse + Shorts', 'Hoher Leinenanteil, kühlend', 'Shorts mit Kordelzug', 'Aus der Vorsaison — reduziert'],
+      rating: 4.3, reviews: 20
+    },
+    {
+      id: 'set-dolce', name: 'Set „Dolce“', cat: 'sets',
+      price: 99.95, old: null, badge: null,
+      colors: ['Schwarz', 'Camel'], sizes: CLOTHING_SIZES, soldOut: [],
+      material: '68 % Viskose, 29 % Polyester, 3 % Elasthan',
+      desc: 'Blazer und weite Hose in einem Ton — der Anzug für Frauen, die keinen Anzug tragen wollen.',
+      details: ['Zweiteilig: Blazer + Marlenehose', 'Hose mit Bundfalten', 'Blazer ungefüttert', 'Beide Teile einzeln kombinierbar'],
+      rating: 4.9, reviews: 33
     },
 
     /* ---- Accessoires ---- */
@@ -222,6 +321,42 @@
       desc: 'Breites Satin-Haarband mit weichem Innenband, das nicht drückt.',
       details: ['Breite ca. 5 cm', 'Gepolstertes Innenband', 'Rutschfest', 'Handwäsche'],
       rating: 4.4, reviews: 11
+    },
+    {
+      id: 'tasche-bella', name: 'Tasche „Bella“', cat: 'accessoires',
+      price: 64.95, old: null, badge: 'neu',
+      colors: ['Creme', 'Rosé'], sizes: ONE_SIZE, soldOut: [],
+      material: 'Veganes Leder (Polyurethan)',
+      desc: 'Größere Schultertasche mit weichem Griff — passt für Laptop, Mappe und alles, was der Tag noch bringt.',
+      details: ['Abnehmbarer Schulterriemen', 'Zwei Innenfächer', 'Maße ca. 34 × 26 × 11 cm', 'Tierfrei'],
+      rating: 4.8, reviews: 6
+    },
+    {
+      id: 'guertel-oro', name: 'Gürtel „Oro“', cat: 'accessoires',
+      price: 29.95, old: null, badge: null,
+      colors: ['Camel', 'Schwarz'], sizes: ONE_SIZE, soldOut: [],
+      material: 'Veganes Leder mit vergoldeter Schnalle',
+      desc: 'Schmaler Gürtel mit goldfarbener Schnalle — betont die Taille an Kleidern und weiten Blazern.',
+      details: ['Breite ca. 2,5 cm', 'Vergoldete Schnalle', 'Länge 100 cm, fünf Löcher', 'Tierfrei'],
+      rating: 4.6, reviews: 14
+    },
+    {
+      id: 'ohrringe-stella', name: 'Ohrringe „Stella“', cat: 'accessoires',
+      price: 24.95, old: null, badge: null,
+      colors: ['Gold'], sizes: ONE_SIZE, soldOut: [],
+      material: 'Edelstahl, 18 Karat vergoldet',
+      desc: 'Feine Creolen mit kleinem Perlenanhänger — passen zur Kette „Perla d’Oro“ und zu allem in Rosé.',
+      details: ['Durchmesser ca. 2 cm', 'Süßwasserperle als Anhänger', 'Nickelfrei, anlaufgeschützt', 'Sehr leicht, drückt nicht'],
+      rating: 4.7, reviews: 18
+    },
+    {
+      id: 'tuch-serafina', name: 'Tuch „Serafina“', cat: 'accessoires',
+      price: 27.95, old: 34.95, badge: 'sale',
+      colors: ['Rosé', 'Salbei'], sizes: ONE_SIZE, soldOut: [],
+      material: '100 % Polyester in Seidenoptik',
+      desc: 'Kleines Halstuch in Seidenoptik — um den Hals, ums Handgelenk oder am Taschenhenkel.',
+      details: ['Maße ca. 55 × 55 cm', 'Gerollter Saum', 'Seidiger Griff', 'Aus der Vorsaison — reduziert'],
+      rating: 4.5, reviews: 12
     }
   ];
 

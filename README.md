@@ -47,7 +47,7 @@ Nach Kundenfeedback: Rosé / Hellrosa mit goldenen Details.
 
 - **Logo** — aktuell eine gesetzte Wortmarke als Platzhalter
 - **Produktfotos** — alle Bildflächen sind markierte Platzhalter
-- **Echte Produkte und Preise** — `assets/shop.js` enthält 17 Beispielartikel
+- **Echte Produkte und Preise** — `assets/shop.js` enthält 32 Beispielartikel
 - **Bewertungen** — Beispieltexte, als solche auf der Seite gekennzeichnet
 - **Rechtstexte** — Impressum, AGB, Widerrufsbelehrung und Datenschutz
   brauchen die Unternehmensdaten der Kundin
