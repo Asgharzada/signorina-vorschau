@@ -52,14 +52,24 @@ Warenkorb, Kasse und Bestätigung nie unterschiedliche Summen zeigen.
 Die Dateien sind in allen HTML-Seiten mit einer Versionsnummer eingebunden:
 
 ```html
-<link rel="stylesheet" href="assets/style.css?v=8">
-<script src="assets/art.js?v=8"></script>
-<script src="assets/shop.js?v=8"></script>
+<link rel="stylesheet" href="assets/style.css?v=9">
+<script src="assets/art.js?v=9"></script>
+<script src="assets/shop.js?v=9"></script>
 ```
 
 Nach jeder Änderung an `art.js`, `shop.js` oder `style.css` diese Zahl in **allen**
 Seiten hochzählen. Sonst liefert der Browser die alte Fassung aus dem Cache aus
 und die Änderung ist nicht zu sehen.
+
+## Bilder
+
+**Produktkacheln** sind Illustrationen aus `assets/art.js` — bewusst, weil ein
+Stockfoto neben einem konkreten Artikel mit Preis irrefuehrende Werbung waere.
+
+**Stimmungsbilder** (Hero, Kategoriekacheln, Ueber uns, Instagram) sind echte
+Fotos von Unsplash unter der Unsplash-Lizenz, lokal in `bilder/` abgelegt —
+kein Hotlink, keine externe Anfrage. Nachweise und die rechtlichen Gruende fuer
+die Auswahl stehen in [BILDNACHWEISE.md](BILDNACHWEISE.md).
 
 ## Abbildungen
 

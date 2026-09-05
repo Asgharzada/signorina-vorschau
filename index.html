@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F9EAEC">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=8">
+<link rel="stylesheet" href="assets/style.css?v=9">
 </head>
 
 <body>
@@ -89,17 +89,17 @@
 
       <div class="styles">
         <a href="kategorie.html?c=kleider" class="style-tile"><figure style="margin:0">
-          <div class="ph ph-art" data-cat-art="kleider"></div>
+          <div class="ph-foto"><img src="bilder/kat-kleider.jpg" width="800" height="1000" loading="lazy" decoding="async" alt="Oberteil auf einem Buegel vor weisser Wand"></div>
           <figcaption><strong>Kleider</strong><span>Jetzt entdecken</span></figcaption>
         </figure></a>
 
         <a href="kategorie.html?c=sets" class="style-tile"><figure style="margin:0">
-          <div class="ph ph-art" data-cat-art="sets"></div>
+          <div class="ph-foto"><img src="bilder/kat-sets.jpg" width="800" height="1000" loading="lazy" decoding="async" alt="Gestapelte Strickteile im warmen Licht"></div>
           <figcaption><strong>Sets &amp; Zweiteiler</strong><span>Jetzt entdecken</span></figcaption>
         </figure></a>
 
         <a href="kategorie.html?c=accessoires" class="style-tile"><figure style="margin:0">
-          <div class="ph ph-art" data-cat-art="accessoires"></div>
+          <div class="ph-foto"><img src="bilder/kat-accessoires.jpg" width="800" height="1000" loading="lazy" decoding="async" alt="Hut, Sonnenbrille und Trockenblumen auf hellem Untergrund"></div>
           <figcaption><strong>Accessoires</strong><span>Jetzt entdecken</span></figcaption>
         </figure></a>
       </div>
@@ -109,7 +109,7 @@
   <!-- ===== Markengeschichte ===== -->
   <section class="section story" id="story">
     <div class="wrap story-grid">
-      <div class="ph ph-art" data-story-art></div>
+      <div class="ph-foto"><img src="bilder/story.jpg" width="800" height="1000" loading="lazy" decoding="async" alt="Zusammengelegtes Leinenhemd mit Brille und Wollknaeuel"></div>
       <div class="story-text">
         <p class="eyebrow">Über uns</p>
         <h2>Signorina.collection</h2>
@@ -151,15 +151,16 @@
         <h2>Shop the Look</h2>
         <hr class="rule">
         <p>Trage deinen Look mit <strong>#signorina</strong> — vielleicht bist du bald hier zu sehen.</p>
+        <p style="font-size:.78rem;margin-top:.8rem">Artikelbilder sind derzeit Illustrationen und werden durch echte Produktfotos ersetzt.</p>
       </div>
 
       <div class="ig-grid">
-        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
-        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
-        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
-        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
-        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
-        <a href="#" class="ig-item"><div class="ph ph-art" data-ig-art></div></a>
+        <a href="#" class="ig-item"><div class="ph-foto"><img src="bilder/ig-1.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Weisser Strickpullover mit Zweig auf hellem Holz"></div></a>
+        <a href="#" class="ig-item"><div class="ph-foto"><img src="bilder/ig-2.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Cremefarbener Seidenstoff in Falten"></div></a>
+        <a href="#" class="ig-item"><div class="ph-foto"><img src="bilder/ig-3.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Kleiderstange in einer Boutique"></div></a>
+        <a href="#" class="ig-item"><div class="ph-foto"><img src="bilder/ig-4.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Getrocknete Hortensien in warmem Licht"></div></a>
+        <a href="#" class="ig-item"><div class="ph-foto"><img src="bilder/ig-5.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Pampasgras im Gegenlicht"></div></a>
+        <a href="#" class="ig-item"><div class="ph-foto"><img src="bilder/ig-6.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Feine Leinenstruktur in Creme"></div></a>
       </div>
     </div>
   </section>
@@ -187,8 +188,8 @@
 
 <div id="site-footer"></div>
 
-<script src="assets/art.js?v=8"></script>
-<script src="assets/shop.js?v=8"></script>
+<script src="assets/art.js?v=9"></script>
+<script src="assets/shop.js?v=9"></script>
 <script>
 Shop.mountChrome({ active: null });
 
@@ -227,13 +228,6 @@ function fill(sel, list) {
       Shop.COLORS[Shop.tileColor(p)] || '#E9C3CB', 'tile' + i);
   });
 }
-['kleider', 'sets', 'accessoires'].forEach(function (c) {
-  fill('[data-cat-art="' + c + '"]', Shop.byCategory(c));
-});
-fill('[data-story-art]', Shop.byCategory('kleider').slice(2));
-fill('[data-ig-art]', Shop.PRODUCTS.slice().sort(function (a, b) {
-  return (b.rating * b.reviews) - (a.rating * a.reviews);
-}));
 Shop.refreshBadges();
 
 document.getElementById('news-form').addEventListener('submit', function (e) {

@@ -151,11 +151,15 @@ p{margin:0}
 .hero{
   position:relative;min-height:clamp(460px,76vh,720px);
   display:grid;place-items:center;text-align:center;overflow:hidden;
+  /* Foto ganz unten, darueber ein Rose-Schleier.
+     Der Schleier liegt bei 78-84 % — selbst ueber einer schwarzen
+     Bildstelle bleibt der Text bei rund 8:1 Kontrast lesbar. */
   background:
-    radial-gradient(110% 85% at 16% 10%,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 55%),
-    radial-gradient(85% 75% at 84% 88%,var(--rose-500) 0%,rgba(215,154,168,0) 62%),
-    radial-gradient(70% 60% at 90% 10%,rgba(201,162,74,.3) 0%,rgba(201,162,74,0) 58%),
-    linear-gradient(160deg,var(--rose-200) 0%,var(--rose-100) 42%,var(--rose-300) 100%);
+    radial-gradient(110% 85% at 16% 10%,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 55%),
+    radial-gradient(85% 75% at 84% 88%,rgba(215,154,168,.55) 0%,rgba(215,154,168,0) 62%),
+    linear-gradient(160deg,rgba(242,217,222,.84) 0%,rgba(249,234,236,.80) 42%,rgba(233,195,203,.84) 100%),
+    url("../bilder/hero.jpg") center/cover no-repeat,
+    var(--rose-100);
 }
 .hero::after{
   content:"";position:absolute;inset:clamp(14px,3vw,34px);
@@ -758,3 +762,16 @@ p{margin:0}
   position:absolute;width:1px;height:1px;margin:-1px;padding:0;
   overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
 }
+
+/* =========================================================
+   Fotos in festen Bildflaechen
+   ========================================================= */
+.ph-foto{position:relative;overflow:hidden;background:var(--rose-100)}
+.ph-foto img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .6s ease;
+}
+.style-tile:hover .ph-foto img,.ig-item:hover .ph-foto img{transform:scale(1.04)}
+.style-tile .ph-foto{aspect-ratio:4/5}
+.story .ph-foto{aspect-ratio:4/5}
+.ig-grid .ph-foto{aspect-ratio:1}
