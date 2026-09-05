@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kollektion — Signorina.collection</title>
+<meta name="description" content="Kleider, Oberteile, Sets und Accessoires von Signorina.collection — feminine Damenmode in Rosé und Gold.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F9EAEC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F9EAEC'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' fill='%23C9A24A' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body>
+
+<div id="site-header"></div>
+
+<main>
+
+  <!-- ===== Kategoriekopf ===== -->
+  <section class="cat-head">
+    <div class="wrap">
+      <p class="eyebrow">Kollektion</p>
+      <h1 id="cat-title" style="font-size:clamp(2.1rem,4vw,3.2rem);margin-top:.4rem">&nbsp;</h1>
+      <hr class="rule">
+      <p class="desc" id="cat-desc">&nbsp;</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+
+    <!-- ===== Brotkrumen ===== -->
+    <nav class="crumbs" aria-label="Brotkrumen">
+      <a href="index.html">Startseite</a>
+      <span class="sep">/</span>
+      <span aria-current="page" id="crumb-cat">Kollektion</span>
+    </nav>
+
+    <!-- ===== Filter + Sortierung ===== -->
+    <div class="toolbar">
+      <div class="filters">
+        <div class="filter-group" id="filter-size">
+          <label>Größe</label>
+          <!-- wird gefüllt -->
+        </div>
+        <div class="filter-group" id="filter-color">
+          <label>Farbe</label>
+          <!-- wird gefüllt -->
+        </div>
+        <button class="chip" id="reset" hidden>Filter zurücksetzen ×</button>
+      </div>
+
+      <div class="sortbar">
+        <span class="count" id="count">&nbsp;</span>
+        <label for="sort" class="visually-hidden" style="position:absolute;left:-9999px">Sortieren nach</label>
+        <select id="sort">
+          <option value="empfohlen">Empfohlen</option>
+          <option value="neu">Neuheiten zuerst</option>
+          <option value="preis-auf">Preis aufsteigend</option>
+          <option value="preis-ab">Preis absteigend</option>
+          <option value="bewertung">Beste Bewertung</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ===== Produktraster ===== -->
+    <div class="grid-products" id="grid" style="margin-bottom:clamp(3.6rem,7vw,6rem)"></div>
+
+  </div>
+
+  <!-- ===== Vorteilsleiste ===== -->
+  <section class="usp" style="border-top:1px solid var(--line)">
+    <div class="wrap usp-grid">
+      <div class="usp-item">
+        <svg viewBox="0 0 24 24"><path d="M2 7h11v9H2zM13 10h4l4 3v3h-8z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        <strong>Versand in 1–3 Tagen</strong>
+        <span>Kostenlos ab 49&nbsp;€ innerhalb Deutschlands</span>
+      </div>
+      <div class="usp-item">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        <strong>Kostenlose Rücksendung</strong>
+        <span>30 Tage Zeit, ganz ohne Risiko</span>
+      </div>
+      <div class="usp-item">
+        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <strong>Sichere Zahlung</strong>
+        <span>PayPal, Klarna, Kreditkarte, SEPA</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/shop.js"></script>
+<script>
+(function () {
+  var catKey = Shop.param('c') || 'alle';
+  var meta = Shop.CATEGORIES[catKey] || {
+    title: 'Alle Produkte',
+    desc: 'Die vollständige Kollektion — Kleider, Oberteile, Sets und Accessoires.'
+  };
+
+  Shop.mountChrome({ active: catKey });
+
+  document.title = meta.title + ' — Signorina.collection';
+  document.getElementById('cat-title').textContent = meta.title;
+  document.getElementById('cat-desc').textContent = meta.desc;
+  document.getElementById('crumb-cat').textContent = meta.title;
+
+  var base = Shop.byCategory(catKey);
+
+  /* ---------- Filterwerte aus dem tatsächlichen Bestand ---------- */
+  var sizes = [];
+  var colors = [];
+  base.forEach(function (p) {
+    p.sizes.forEach(function (s) { if (sizes.indexOf(s) === -1) sizes.push(s); });
+    p.colors.forEach(function (c) { if (colors.indexOf(c) === -1) colors.push(c); });
+  });
+  var ORDER = ['XS', 'S', 'M', 'L', 'XL', 'Einheitsgröße'];
+  sizes.sort(function (a, b) { return ORDER.indexOf(a) - ORDER.indexOf(b); });
+
+  var activeSizes = [];
+  var activeColors = [];
+
+  var sizeBox = document.getElementById('filter-size');
+  var colorBox = document.getElementById('filter-color');
+
+  sizes.forEach(function (s) {
+    var b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.textContent = s;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () { toggle(activeSizes, s, b); });
+    sizeBox.appendChild(b);
+  });
+
+  colors.forEach(function (c) {
+    var b = document.createElement('button');
+    b.className = 'chip swatch';
+    b.type = 'button';
+    b.innerHTML = '<i style="background:' + (Shop.COLORS[c] || '#ccc') + '"></i>' + c;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () { toggle(activeColors, c, b); });
+    colorBox.appendChild(b);
+  });
+
+  if (!sizes.length) sizeBox.hidden = true;
+  if (!colors.length) colorBox.hidden = true;
+
+  function toggle(list, value, button) {
+    var i = list.indexOf(value);
+    if (i === -1) { list.push(value); button.setAttribute('aria-pressed', 'true'); }
+    else { list.splice(i, 1); button.setAttribute('aria-pressed', 'false'); }
+    render();
+  }
+
+  /* ---------- Zurücksetzen ---------- */
+  var resetBtn = document.getElementById('reset');
+  resetBtn.addEventListener('click', function () {
+    activeSizes.length = 0;
+    activeColors.length = 0;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.filters .chip[aria-pressed]'),
+      function (b) { b.setAttribute('aria-pressed', 'false'); }
+    );
+    render();
+  });
+
+  /* ---------- Sortierung ---------- */
+  var sortSel = document.getElementById('sort');
+  sortSel.addEventListener('change', render);
+
+  function sortList(list) {
+    var mode = sortSel.value;
+    if (mode === 'preis-auf')  return list.sort(function (a, b) { return a.price - b.price; });
+    if (mode === 'preis-ab')   return list.sort(function (a, b) { return b.price - a.price; });
+    if (mode === 'bewertung')  return list.sort(function (a, b) { return b.rating - a.rating; });
+    if (mode === 'neu')        return list.sort(function (a, b) {
+      return (b.badge === 'neu' ? 1 : 0) - (a.badge === 'neu' ? 1 : 0);
+    });
+    return list; // "Empfohlen" = Reihenfolge im Katalog
+  }
+
+  /* ---------- Rendern ---------- */
+  function render() {
+    var list = base.filter(function (p) {
+      // Größe: verfügbar heißt geführt UND nicht ausverkauft
+      var sizeOk = !activeSizes.length || activeSizes.some(function (s) {
+        return p.sizes.indexOf(s) !== -1 && p.soldOut.indexOf(s) === -1;
+      });
+      var colorOk = !activeColors.length || activeColors.some(function (c) {
+        return p.colors.indexOf(c) !== -1;
+      });
+      return sizeOk && colorOk;
+    });
+
+    list = sortList(list.slice());
+
+    var grid = document.getElementById('grid');
+    grid.innerHTML = list.length
+      ? list.map(Shop.card).join('')
+      : '<p class="empty">Zu dieser Auswahl haben wir gerade nichts vorrätig.<br>' +
+        'Bitte einen Filter entfernen oder in einer anderen Kategorie stöbern.</p>';
+
+    document.getElementById('count').textContent =
+      list.length + (list.length === 1 ? ' Artikel' : ' Artikel');
+
+    resetBtn.hidden = !(activeSizes.length || activeColors.length);
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
